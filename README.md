@@ -1,4 +1,4 @@
-# TransparaTech - PUPSMB Management System
+# PUPSMB TransparaTech
 
 ## Project Description
 

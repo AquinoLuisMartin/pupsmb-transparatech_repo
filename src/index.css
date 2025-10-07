@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom animations for scroll effects */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -74,12 +73,10 @@
   animation-delay: 600ms;
 }
 
-/* Smooth scrolling for the entire page */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -95,29 +92,6 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
-}
-
-/* Counter animation effect */
-.counter-animation {
-  transition: all 0.3s ease-in-out;
-}
-
-/* Parallax container */
-.parallax-container {
-  overflow: hidden;
-}
-
-/* Hover effects */
-.hover-lift:hover {
-  transform: translateY(-5px);
-  transition: transform 0.3s ease-in-out;
-}
-
-/* Glass morphism effect */
-.glass-effect {
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 body {

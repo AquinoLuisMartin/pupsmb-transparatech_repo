@@ -1,20 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import './App.css';
 
 function App() {
   const [scrollY, setScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState({});
 
-  // Mock data for demonstration
-  const mockData = [
-    
-  ];
-
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
       
-      // Check visibility of sections
       const sections = document.querySelectorAll('[data-animate]');
       sections.forEach((section, index) => {
         const rect = section.getBoundingClientRect();
@@ -45,7 +38,6 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Fixed Header with scroll effect */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrollY > 50 ? 'bg-blue-900/95 backdrop-blur-md shadow-lg' : 'bg-blue-900'
       } text-white`}>
@@ -70,7 +62,6 @@ function App() {
         </div>
       </header>
 
-      {/* Hero Section with parallax effect */}
       <section id="home" className="relative bg-gradient-to-r from-blue-800 to-blue-600 text-white py-32 overflow-hidden">
         <div 
           className="absolute inset-0 bg-gradient-to-r from-blue-900/50 to-purple-900/50"
@@ -102,7 +93,6 @@ function App() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
           <button 
             onClick={() => scrollToSection('about')}
@@ -115,7 +105,6 @@ function App() {
         </div>
       </section>
 
-      {/* Stats Section with scroll animation */}
       <section 
         id="about" 
         data-animate
@@ -130,7 +119,7 @@ function App() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className={`p-6 transform transition-all duration-800 ${isVisible[0] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-              <div className="text-4xl font-bold text-blue-900 mb-2">$6.8T</div>
+              <div className="text-4xl font-bold text-blue-900 mb-2">6.8T</div>
               <div className="text-gray-600">Total Federal Spending (FY 2024)</div>
             </div>
             <div className={`p-6 transform transition-all duration-800 ${isVisible[0] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: '200ms' }}>
@@ -145,7 +134,6 @@ function App() {
         </div>
       </section>
 
-      {/* Main Content with table animation */}
       <section 
         data-animate
         className={`py-16 bg-gray-50 transform transition-all duration-1000 ${
@@ -170,42 +158,11 @@ function App() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {mockData.map((item, index) => (
-                    <tr 
-                      key={item.code} 
-                      className={`transition-all duration-300 transform ${
-                        isVisible[1] ? 'translate-x-0 opacity-100' : 'translate-x-8 opacity-0'
-                      }`}
-                      style={{ transitionDelay: `${index * 100}ms` }}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="text-blue-900 font-semibold text-sm">{index + 1}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">{item.name}</div>
-                        <div className="text-sm text-gray-500">Agency Code: {item.code}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right">
-                        <div className="text-lg font-bold text-gray-900">
-                          {new Intl.NumberFormat('en-US', {
-                            style: 'currency',
-                            currency: 'USD',
-                            minimumFractionDigits: 0,
-                            maximumFractionDigits: 0,
-                          }).format(item.amount)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-center">
-                        <button className="text-blue-600 font-medium text-sm transition-all duration-200">
-                          View Details →
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  <tr className="text-center">
+                    <td colSpan="4" className="px-6 py-8 text-gray-500">
+                      No data available at this time
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -213,7 +170,6 @@ function App() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section 
         id="features"
         data-animate
@@ -258,7 +214,6 @@ function App() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer 
         id="contact"
         data-animate

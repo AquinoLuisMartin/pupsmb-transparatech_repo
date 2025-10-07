@@ -7,9 +7,7 @@ function App() {
 
   // Mock data for demonstration
   const mockData = [
-    { name: "Department of Health and Human Services", code: "075", amount: 1847234567890 },
-    { name: "Department of Defense", code: "097", amount: 816543210987 },
-    { name: "Department of Veterans Affairs", code: "036", amount: 301987654321 },
+    
   ];
 
   useEffect(() => {
@@ -55,7 +53,7 @@ function App() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                <span className="text-blue-900 font-bold text-lg">$</span>
+                <span className="text-blue-900 font-bold text-lg"></span>
               </div>
               <div>
                 <h1 className="text-xl font-bold">PUPSMB TransparaTech</h1>
@@ -66,7 +64,7 @@ function App() {
               <button onClick={() => scrollToSection('home')} className="text-blue-200 hover:text-white transition-colors">Home</button>
               <button onClick={() => scrollToSection('about')} className="text-blue-200 hover:text-white transition-colors">About</button>
               <button onClick={() => scrollToSection('features')} className="text-blue-200 hover:text-white transition-colors">Features</button>
-              <button onClick={() => scrollToSection('contact')} className="text-blue-200 hover:text-white transition-colors">Contact</button>
+              <button onClick={() => scrollToSection('contact')} className="text-blue-200 hover:text-white transition-colors">Get Started</button>
             </nav>
           </div>
         </div>
@@ -85,7 +83,7 @@ function App() {
           <div className="transform transition-all duration-1000 ease-out">
             <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up">
               Transparency in<br />
-              <span className="text-yellow-300 inline-block">Federal Spending</span>
+              <span className="text-yellow-300 inline-block">Organizational Spending</span>
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-blue-100 max-w-3xl mx-auto animate-fade-in-up animation-delay-300">
               Explore how the federal government spends your tax dollars. Search contracts, grants, loans, and other financial assistance.
@@ -95,10 +93,10 @@ function App() {
                 onClick={() => scrollToSection('features')}
                 className="bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg"
               >
-                Search Spending Data
+                Lorem Ipsum
               </button>
               <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300">
-                Download Data
+                Lorem Ipsum
               </button>
             </div>
           </div>

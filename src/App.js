@@ -77,13 +77,12 @@ function App() {
               <span className="text-yellow-300 inline-block">Organizational Spending</span>
             </h1>
             <p className="hero-description">
-              Explore how the federal government spends your tax dollars. Search contracts, grants, loans, and other financial assistance.
+              Explore how our organization spends its budget. Search expenses, contracts, and more.
             </p>
             <div className="hero-buttons">
               <button 
                 onClick={() => scrollToSection('features')}
-                className="primary-button"
-              >
+                className="primary-button">
                 Lorem Ipsum
               </button>
               <button className="secondary-button">
@@ -119,7 +118,7 @@ function App() {
           </div>
           <div className="stats-grid">
             <div className={`stat-card ${isVisible[0] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
-              <div className="text-4xl font-bold text-blue-900 mb-2">6.8T</div>
+              <div className="text-4xl font-bold text-blue-900 mb-2">Lorem Ipsum</div>
               <div className="text-gray-600">Total Federal Spending (FY 2024)</div>
             </div>
             <div className={`stat-card ${isVisible[0] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: '200ms' }}>
@@ -127,8 +126,8 @@ function App() {
               <div className="text-gray-600">Contracts & Awards</div>
             </div>
             <div className={`stat-card ${isVisible[0] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: '400ms' }}>
-              <div className="text-4xl font-bold text-blue-900 mb-2">350+</div>
-              <div className="text-gray-600">Federal Agencies</div>
+              <div className="text-4xl font-bold text-blue-900 mb-2">7</div>
+              <div className="text-gray-600">Student organizations</div>
             </div>
           </div>
         </div>
@@ -179,8 +178,8 @@ function App() {
       >
         <div className="section-content">
           <div className="section-header">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Explore Federal Spending</h2>
-            <p className="text-gray-600 text-lg">Powerful tools to understand government expenditures</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Explore Transparency within your hands</h2>
+            <p className="text-gray-600 text-lg">Powerful tools to understand expenditures</p>
           </div>
           <div className="features-grid">
             <div className={`feature-card ${isVisible[2] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`}>
@@ -190,7 +189,7 @@ function App() {
                 </svg>
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Advanced Search</h3>
-              <p className="text-gray-600">Search by agency, recipient, location, and more</p>
+              <p className="text-gray-600">Search by lorem ipsum</p>
             </div>
             <div className={`feature-card ${isVisible[2] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: '200ms' }}>
               <div className="feature-icon bg-green-100">

@@ -34,6 +34,8 @@ const Login = () => {
   };
 
   return (
+
+    //For Log In
     <div className="login">
       <div className="login__container">
         <form className="login__form" onSubmit={handleSubmit}>
@@ -43,7 +45,7 @@ const Login = () => {
 
           <div className="form-field">
             <label htmlFor="email" className="form-field__label">
-              University Email
+              University Email * //For Pup Webmail
             </label>
             <input
               type="email"
@@ -59,7 +61,7 @@ const Login = () => {
 
           <div className="form-field">
             <label htmlFor="password" className="form-field__label">
-              Password
+              Password * //For Password
             </label>
             <input
               type="password"
@@ -74,7 +76,7 @@ const Login = () => {
           </div>
 
           <button type="submit" className="login__submit-btn">
-            Log In
+            Log In     //Log In Submit button
           </button>
 
           <div className="login__footer">
@@ -95,7 +97,7 @@ const Login = () => {
                 onClick={() => navigate('/forgot-password')}
                 className="login__link-btn"
               >
-                I forgot my password
+                I forgot my password  //Forgot Password link
               </button>
             </p>
           </div>

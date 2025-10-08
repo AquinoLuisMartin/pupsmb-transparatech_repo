@@ -25,15 +25,17 @@ const StudentPortal = () => {
               className="role-button"
               onClick={() => handleRoleSelection('viewer')}
             >
-              <span className="role-button__title">Viewer</span>
-              <span className="role-button__subtitle">Student / Faculty</span>
-            </button>
+            
+              <span className="role-button__title">Viewer</span>   {/* Viewer Role */}
+              <span className="role-button__subtitle">Student</span> 
+            </button> 
+
 
             <button
               className="role-button"
               onClick={() => handleRoleSelection('officer')}
             >
-              <span className="role-button__title">Officer</span>
+              <span className="role-button__title">Officer</span>   {/* Officer Role */}
               <span className="role-button__subtitle">Can Upload Files</span>
             </button>
 
@@ -41,7 +43,7 @@ const StudentPortal = () => {
               className="role-button"
               onClick={() => handleRoleSelection('auditor')}
             >
-              <span className="role-button__title">Auditor</span>
+              <span className="role-button__title">Auditor</span>   {/* Auditor Role */}
               <span className="role-button__subtitle">Can Approve Files</span>
             </button>
 
@@ -49,7 +51,7 @@ const StudentPortal = () => {
               className="role-button"
               onClick={() => handleRoleSelection('admin')}
             >
-              <span className="role-button__title">Admin</span>
+              <span className="role-button__title">Admin</span>  {/* Admin Role */}
               <span className="role-button__subtitle">Monitor & Supervise</span>
             </button>
           </div>

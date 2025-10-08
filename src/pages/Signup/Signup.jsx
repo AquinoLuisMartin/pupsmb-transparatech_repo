@@ -51,7 +51,7 @@ const Signup = () => {
           <div className="form-row">
             <div className="form-field">
               <label htmlFor="firstName" className="form-field__label">
-                First Name
+                First Name *    //First Name field
               </label>
               <input
                 type="text"
@@ -67,7 +67,7 @@ const Signup = () => {
             
             <div className="form-field">
               <label htmlFor="lastName" className="form-field__label">
-                Last Name
+                Last Name *    //Last Name field
               </label>
               <input
                 type="text"
@@ -84,7 +84,7 @@ const Signup = () => {
 
           <div className="form-field">
             <label htmlFor="email" className="form-field__label">
-              University Email
+              University Email *    //For Pup Webmail
             </label>
             <input
               type="email"
@@ -100,7 +100,7 @@ const Signup = () => {
 
           <div className="form-field">
             <label htmlFor="password" className="form-field__label">
-              Password
+              Password *    //For Password
             </label>
             <input
               type="password"
@@ -116,7 +116,7 @@ const Signup = () => {
 
           <div className="form-field">
             <label htmlFor="confirmPassword" className="form-field__label">
-              Confirm Password
+              Confirm Password *  //For Confirm Password
             </label>
             <input
               type="password"
@@ -138,13 +138,13 @@ const Signup = () => {
                 className="checkbox-field__input"
               />
               <span className="checkbox-field__label">
-                I agree to the Terms and Conditions
+                I agree to the Terms and Conditions *  //Terms and Conditions
               </span>
             </label>
           </div>
 
           <button type="submit" className="signup__submit-btn">
-            Create Account
+            Create Account  //Create Account button
           </button>
 
           <div className="signup__footer">
@@ -155,7 +155,7 @@ const Signup = () => {
                 onClick={() => navigate(getLoginLink())}
                 className="signup__link-btn"
               >
-                Sign in here
+                Sign in here  //Sign in link
               </button>
             </p>
           </div>

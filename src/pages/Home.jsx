@@ -77,6 +77,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      
       {/* Fixed Navigation Header - Changes background on scroll */}
       <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${
         scrollY > 50 ? 'bg-blue-900/95 backdrop-blur-md shadow-lg' : 'bg-blue-900'
@@ -93,6 +94,7 @@ const Home = () => {
                 <p className="text-blue-200 text-sm">Official Management System of PUPSMB</p>
               </div>
             </div>
+            
             {/* Navigation Menu */}
             <nav className="nav-menu">
               <button onClick={() => scrollToSection('home')} className="nav-link">Home</button>
@@ -119,18 +121,16 @@ const Home = () => {
           <div className="transform transition-all duration-1000 ease-out">
             <h1 className="hero-title">
               <strong>Making Technology</strong><br />
-              <span className="text-yellow-300 inline-block">Transparent & Accessible</span>
+              <span className="text-yellow-300 inline-block"><strong>Transparent & Accessible</strong></span>
             </h1>
             <p className="hero-description">
                TransparaTech provides innovative technology solutions with <em>transparency at the core</em> of everything we do. Builidng a better future through <em>accessible tech.</em>
             </p>
             {/* Call-to-Action Buttons */}
             <div className="hero-buttons">
-              <button 
-                onClick={() => scrollToSection('features')}
-                className="primary-button">
+              <Link to="/student-portal" className="primary-button">
                 Log In
-              </button>
+              </Link>
               <Link to="/student-portal" className="secondary-button">
                 Sign Up
               </Link>

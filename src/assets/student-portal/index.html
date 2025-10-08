@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PUPSMB Transparency Portal</title>
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background: #f4f6fb;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    h1 {
+      color: #5a189a;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #444;
+      max-width: 500px;
+      margin-bottom: 40px;
+    }
+    .role-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    a {
+      text-decoration: none;
+    }
+    button {
+      background-color: #7b2cbf;
+      color: #fff;
+      border: none;
+      padding: 15px 25px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    button:hover {
+      background-color: #5a189a;
+    }
+  </style>
+</head>
+<body>
+  <h1>PUPSMB Transparency Portal</h1>
+  <p>Promoting organizational accountability through transparent budget access within the PUPSMB campus community.</p>
+
+  <div class="role-buttons">
+    <a href="login.html?role=viewer"><button>Viewer (Student / Faculty)</button></a>
+    <a href="login.html?role=officer"><button>Officer (Can Upload Files)</button></a>
+    <a href="login.html?role=auditor"><button>Auditor (Can Approve Files)</button></a>
+    <a href="login.html?role=admin"><button>Admin (Monitor & Supervise)</button></a>
+  </div>
+</body>
+</html>

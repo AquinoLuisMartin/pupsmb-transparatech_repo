@@ -1,0 +1,117 @@
+/* StudentPortal.css - Blue Theme */
+
+/* Portal Container */
+.portal {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f5f9ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.portal__container {
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Header Styles */
+.portal__header {
+  margin-bottom: 3rem;
+}
+
+.portal__title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #1565c0;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+}
+
+.portal__description {
+  font-size: 1.2rem;
+  color: #424242;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Main Content */
+.portal__main {
+  display: flex;
+  justify-content: center;
+}
+
+.portal__roles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  max-width: 600px;
+  width: 100%;
+}
+
+/* Role Button Styles */
+.role-button {
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(33, 150, 243, 0.3);
+  min-height: 100px;
+}
+
+.role-button__title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.role-button__subtitle {
+  font-size: 0.9rem;
+  opacity: 0.9;
+  display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .portal {
+    padding: 1rem;
+  }
+  
+  .portal__title {
+    font-size: 2rem;
+  }
+  
+  .portal__description {
+    font-size: 1rem;
+  }
+  
+  .portal__roles {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .role-button {
+    padding: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .portal__title {
+    font-size: 1.5rem;
+  }
+  
+  .portal__description {
+    font-size: 0.9rem;
+  }
+}
+

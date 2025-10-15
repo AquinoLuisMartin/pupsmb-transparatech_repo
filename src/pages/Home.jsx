@@ -170,6 +170,7 @@ const Home = () => {
         </div>
       </section>
 
+      
       {/* Student Organizations Logos Section - Showcases partner organizations */}
       <section 
         data-animate
@@ -233,8 +234,8 @@ const Home = () => {
         }`}>
         <div className="section-content">
           <div className="section-header">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Experience Transparency and Efficiency with Transparatech</h2>
-            <p className="text-gray-600 text-lg">Powerful tools to understand organizational expenditures</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Key Features</h2>
+            <p className="text-gray-600 text-lg">Experience Transparency and Efficiency with Transparatech</p>
           </div>
           {/* Features Grid - Three main feature cards with staggered animations */}
           <div className="features-grid">
@@ -247,6 +248,7 @@ const Home = () => {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">Transparency Dashboard</h3>
               <p className="text-gray-600"><strong>Empowering organization with real-time visibility and control</strong></p>
+              <p className="text-gray-600">Gain instant access to performance data and operational metrics through an intuitive dashboard. Our system visualizes workflows, tracks efficiency, and highlights areas for improvement- enabling faster, smarter, and more transparent decision-making.</p>
             </div>
             {/* Feature 2: Automation Solutions (200ms delay) */}
             <div className={`feature-card ${isVisible[3] ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'}`} style={{ transitionDelay: '200ms' }}>

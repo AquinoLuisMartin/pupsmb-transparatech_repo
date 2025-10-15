@@ -1,17 +1,18 @@
-# PUPSMB Transparency Portal
+# Transparatech - Full-Stack Web Application
 
 ## Project Overview
 
-The PUPSMB Transparency Portal is a role-based web application designed to promote organizational accountability through transparent budget access within the PUPSMB (Polytechnic University of the Philippines Santa Maria Bulacan) campus community. The portal provides different access levels for various user roles including Viewers, Officers, Auditors, and Administrators.
+Transparatech is a full-stack web application designed to promote organizational accountability through transparent budget access. The application features a React-based frontend with a modern responsive design and a Node.js/Express backend with PostgreSQL database integration.
 
 ## Features
 
+- **Full-Stack Architecture** - React frontend with Node.js/Express backend
 - **Role-Based Access Control** - Four distinct user roles with specific permissions
+- **Modern Tech Stack** - ES modules, latest React, Express, and PostgreSQL
 - **Clean, Professional UI** - Modern blue-themed design with smooth animations
 - **Responsive Design** - Optimized for desktop, tablet, and mobile devices
-- **Semantic HTML Structure** - Clean, maintainable code following best practices
-- **Modular CSS Architecture** - Separate CSS files for better maintainability
-- **Inter Font Integration** - Professional typography using Google Fonts
+- **RESTful API** - Well-structured backend API with proper routing
+- **Database Integration** - PostgreSQL with proper environment configuration
 
 ### User Roles
 
@@ -22,31 +23,58 @@ The PUPSMB Transparency Portal is a role-based web application designed to promo
 
 ## Technology Stack
 
+### Frontend
 - **React 19.2.0** - Modern JavaScript framework with latest features
 - **React Router DOM 7.9.3** - Client-side routing for SPA navigation
-- **Tailwind CSS 3.4.0** - Utility-first CSS framework (for Home component)
+- **Tailwind CSS 3.4.0** - Utility-first CSS framework
 - **Custom CSS** - Component-specific styling with BEM methodology
-- **Inter Font** - Professional typography from Google Fonts
-- **Create React App** - Development environment and build tools
+
+### Backend
+- **Node.js** - JavaScript runtime environment
+- **Express 4.19.2** - Web application framework
+- **PostgreSQL 8.11.5** - Relational database
+- **ES Modules** - Modern JavaScript module system
+- **dotenv 16.4.5** - Environment variable management
+- **CORS 2.8.5** - Cross-origin resource sharing
+- **Joi 17.13.1** - Data validation library
+
+### Development Tools
+- **Nodemon 3.1.0** - Development server with auto-restart
+- **Create React App** - Frontend development environment
 
 ## Project Structure
 
 ```
-src/
-├── pages/
-│   ├── Home.jsx                    # Landing page with navigation
-│   ├── Login/
-│   │   ├── Login.jsx              # Role-based login component
-│   │   └── Login.css              # Login-specific styling
-│   ├── Signup/
-│   │   ├── Signup.jsx             # Role-based registration
-│   │   └── Signup.css             # Signup-specific styling
-│   └── StudentPortal/
-│       ├── StudentPortal.jsx      # Main portal with 4 role buttons
-│       └── StudentPortal.css      # Portal-specific styling
-├── App.js                         # Main app with routing configuration
-├── index.js                       # Application entry point
-└── index.css                      # Global styles and Tailwind imports
+transparatech/
+├── client/                         # React Frontend
+│   ├── public/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Home.jsx           # Landing page with navigation
+│   │   │   ├── Login/
+│   │   │   │   ├── Login.jsx      # Role-based login component
+│   │   │   │   └── Login.css      # Login-specific styling
+│   │   │   ├── Signup/
+│   │   │   │   ├── Signup.jsx     # Role-based registration
+│   │   │   │   └── Signup.css     # Signup-specific styling
+│   │   │   └── StudentPortal/
+│   │   │       ├── StudentPortal.jsx # Main portal with 4 role buttons
+│   │   │       └── StudentPortal.css # Portal-specific styling
+│   │   ├── App.js                 # Main app with routing configuration
+│   │   ├── index.js               # Application entry point
+│   │   └── index.css              # Global styles and Tailwind imports
+│   ├── package.json               # Frontend dependencies
+│   └── README.md                  # Project documentation
+└── server/                        # Node.js Backend
+    ├── src/
+    │   ├── api/                   # API routes
+    │   ├── config/                # Database and app configuration
+    │   ├── controllers/           # Request handlers
+    │   ├── middleware/            # Custom middleware
+    │   ├── models/                # Database models
+    │   └── server.js              # Main server file
+    ├── .env                       # Environment variables
+    └── package.json               # Backend dependencies
 ```
 
 ## Design System
@@ -69,27 +97,59 @@ src/
 ### Prerequisites
 - Node.js (version 16 or higher)
 - npm (comes with Node.js)
+- PostgreSQL (for database)
 
 ### Getting Started
 
 1. **Clone the repository:**
 ```bash
 git clone https://github.com/AquinoLuisMartin/dummy-transparatech.git
-cd dummy-transparatech
+cd full-stack-transparatech
 ```
 
-2. **Install dependencies:**
+2. **Backend Setup:**
 ```bash
+cd server
 npm install
 ```
 
-3. **Start the development server:**
+3. **Configure Environment Variables:**
+Edit `server/.env` file with your database credentials:
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=transparatech_db
+DB_USER=your_username
+DB_PASSWORD=your_password
+
+# Server Configuration
+PORT=5000
+NODE_ENV=development
+```
+
+4. **Start the Backend Server:**
+```bash
+npm run dev
+```
+The server will run on `http://localhost:5000`
+
+5. **Frontend Setup (in a new terminal):**
+```bash
+cd client
+npm install
+```
+
+6. **Start the Frontend Development Server:**
 ```bash
 npm start
 ```
+The frontend will run on `http://localhost:3000`
 
-4. **Open your browser:**
-Navigate to [http://localhost:3000](http://localhost:3000) to view the application.
+### Development Workflow
+- Backend API: `http://localhost:5000`
+- Frontend App: `http://localhost:3000`
+- Both servers support hot reloading for development
 
 ## Usage Guide
 
@@ -125,22 +185,46 @@ Navigate to [http://localhost:3000](http://localhost:3000) to view the applicati
 
 ## Available Scripts
 
-In the project directory, you can run:
+### Frontend (client/)
+- **`npm start`** - Runs React app in development mode on `http://localhost:3000`
+- **`npm test`** - Launches the test runner in interactive watch mode
+- **`npm run build`** - Builds the app for production to the `build` folder
+- **`npm run eject`** - Ejects from Create React App (one-way operation)
 
-### `npm start`
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.\
-The page will reload when you make changes.
+### Backend (server/)
+- **`npm run dev`** - Runs server with nodemon for development on `http://localhost:5000`
+- **`npm start`** - Runs server in production mode (after building)
 
-### `npm test`
-Launches the test runner in interactive watch mode.
+## API Documentation
 
-### `npm run build`
-Builds the app for production to the `build` folder.\
-Optimizes the build for the best performance with minified files.
+### Base URL
+Development: `http://localhost:5000`
 
-### `npm run eject`
-**Note: This is a one-way operation. Once you eject, you can't go back!**
+### Available Endpoints
+- **GET `/`** - Server status check
+- **GET `/health`** - Health check endpoint
+
+*Additional API endpoints will be documented as they are implemented.*
+
+## Database Setup
+
+### PostgreSQL Configuration
+1. Install PostgreSQL on your system
+2. Create a new database: `transparatech_db`
+3. Update the `.env` file with your database credentials
+4. Database schema and migrations will be added as the project develops
+
+### Environment Variables
+Required environment variables in `server/.env`:
+```env
+DB_HOST=localhost          # Database host
+DB_PORT=5432              # Database port
+DB_NAME=transparatech_db  # Database name
+DB_USER=your_username     # Database username
+DB_PASSWORD=your_password # Database password
+PORT=5000                 # Server port
+NODE_ENV=development      # Environment mode
+```
 
 ## Component Documentation
 
@@ -165,19 +249,59 @@ Optimizes the build for the best performance with minified files.
 
 ## Deployment
 
-### Build for Production
+### Frontend Deployment
 ```bash
+cd client
 npm run build
 ```
 
-### Deployment Options
-- **Netlify** - Connect Git repository for automatic deployments
-- **Vercel** - Optimized for React applications with zero configuration
-- **GitHub Pages** - Free hosting for public repositories
-- **AWS S3 + CloudFront** - Scalable cloud hosting solution
+### Backend Deployment
+```bash
+cd server
+# Set NODE_ENV=production in .env
+npm start
+```
 
-### Environment Configuration
-No environment variables required for basic functionality.
+### Deployment Options
+- **Frontend:** Netlify, Vercel, GitHub Pages, AWS S3 + CloudFront
+- **Backend:** Heroku, DigitalOcean, AWS EC2, Railway
+- **Database:** PostgreSQL on cloud providers (AWS RDS, Google Cloud SQL, etc.)
+
+## Development Guidelines
+
+### Full-Stack Development
+- **API First** - Design and document API endpoints before frontend implementation
+- **Environment Separation** - Use proper environment configurations for development/production
+- **Error Handling** - Implement proper error handling on both client and server
+- **Security** - Follow security best practices for authentication and data validation
+
+### Frontend Guidelines
+- **Component Structure** - Each component in its own folder with accompanying CSS
+- **State Management** - Use React hooks for state management
+- **API Integration** - Use fetch or axios for backend communication
+- **Responsive Design** - Ensure all components work on mobile and desktop
+
+### Backend Guidelines
+- **RESTful Design** - Follow REST principles for API design
+- **Validation** - Use Joi for input validation
+- **Middleware** - Implement proper middleware for authentication, logging, etc.
+- **Database** - Use proper SQL practices and connection pooling
+
+## Troubleshooting
+
+### Common Issues
+
+**Q: Backend server won't start**\
+A: Check if PostgreSQL is running and .env variables are correctly set
+
+**Q: Frontend can't connect to backend**\
+A: Ensure CORS is properly configured and both servers are running
+
+**Q: Database connection errors**\
+A: Verify PostgreSQL is installed, running, and credentials in .env are correct
+
+**Q: Module import errors**\
+A: Ensure package.json has "type": "module" for ES modules in backend
 
 ## Browser Support
 - Chrome (latest 2 versions)
@@ -222,12 +346,29 @@ A: The @tailwind directives in index.css are normal and won't affect the build.
 
 ## Future Enhancements
 
-- **Authentication System** - Backend integration for user management
+### Phase 1 - Core Backend Features
+- **Authentication System** - JWT-based user authentication
+- **User Management** - Registration, login, and role-based permissions
+- **Database Schema** - Complete database design with proper relationships
+- **API Routes** - CRUD operations for all entities
+
+### Phase 2 - Advanced Features
 - **File Upload Functionality** - Document management for Officers
 - **Approval Workflow** - Review system for Auditors
 - **Dashboard Analytics** - Reporting features for Admins
 - **Email Notifications** - System alerts and updates
-- **Dark Mode** - Theme switching capability
+
+### Phase 3 - Enhanced UX
+- **Real-time Updates** - WebSocket integration for live updates
+- **Advanced Search** - Full-text search capabilities
+- **Data Visualization** - Charts and graphs for transparency data
+- **Mobile App** - React Native mobile application
+
+### Phase 4 - Enterprise Features
+- **Audit Logging** - Complete audit trail for all actions
+- **Backup & Recovery** - Automated data backup systems
+- **Multi-tenant Support** - Support for multiple organizations
+- **Advanced Security** - Two-factor authentication, encryption
 
 ## License
 

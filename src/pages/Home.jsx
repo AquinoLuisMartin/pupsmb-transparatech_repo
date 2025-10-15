@@ -183,34 +183,34 @@ const Home = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Student Organizations</h2>
             <p className="text-gray-600">Supporting campus community through various student organizations</p>
           </div>
-          {/* Organization Logos Grid - Each logo has hover animation */}
+          {/* Organization Logos Grid */}
           <div className="flex flex-wrap justify-center items-center gap-8 max-w-4xl mx-auto">
             {/* Student Council Logo */}
-            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-110">
+            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
               <img src={SCLogo} alt="Student Council" className="w-full h-full object-cover" />
             </div>
             {/* Civil Engineering Management Logo */}
-            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-110">
+            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
               <img src={CEMLogo} alt="CEM" className="w-full h-full object-cover" />
             </div>
             {/* iSITE Organization Logo */}
-            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-110">
+            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
               <img src={iSITELogo} alt="iSITE" className="w-full h-full object-cover" />
             </div>
             {/* ACES Organization Logo */}
-            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-110">
+            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
               <img src={ACESLogo} alt="ACES" className="w-full h-full object-cover" />
             </div>
             {/* AFT Organization Logo */}
-            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-110">
+            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
               <img src={AFTLogo} alt="AFT" className="w-full h-full object-cover" />
             </div>
             {/* HMSOC Organization Logo */}
-            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-110">
+            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
               <img src={HMSOCLogo} alt="HMSOC" className="w-full h-full object-cover" />
             </div>
             {/* JPIA Organization Logo */}
-            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md transition-transform duration-300 hover:scale-110">
+            <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
               <img src={JPIALogo} alt="JPIA" className="w-full h-full object-cover" />
             </div>
           </div>

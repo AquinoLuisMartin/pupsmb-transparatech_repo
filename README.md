@@ -203,7 +203,7 @@ This project is part of the Transparatech initiative.
 
 ---
 
-**Built with ❤️ by the Hexadevs Team**
+**Built with by the Hexadevs Team**
 =======
 ```
 

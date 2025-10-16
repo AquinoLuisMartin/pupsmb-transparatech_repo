@@ -100,6 +100,7 @@ const Home = () => {
               <button onClick={() => scrollToSection('home')} className="nav-link">Home</button>
               <button onClick={() => scrollToSection('about')} className="nav-link">About</button>
               <button onClick={() => scrollToSection('features')} className="nav-link">Features</button>
+              <Link to="/chatbot" className="nav-link">🤖 AI Chat</Link>
               <Link to="/student-portal" className="nav-link">Get Started</Link>
             </nav>
           </div>
@@ -130,6 +131,9 @@ const Home = () => {
             <div className="hero-buttons">
               <Link to="/student-portal" className="primary-button">
                 Log In
+              </Link>
+              <Link to="/chatbot" className="secondary-button">
+                🤖 Try AI Assistant
               </Link>
               <Link to="/student-portal" className="secondary-button">
                 Sign Up

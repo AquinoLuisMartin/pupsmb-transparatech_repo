@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import StudentPortal from './pages/StudentPortal/StudentPortal';
 import Login from './pages/Login/Login';
 import Signup from './pages/Signup/Signup';
-import Chatbot from './pages/Chatbot/Chatbot';
 
 function App() {
   return (
@@ -14,7 +13,6 @@ function App() {
         <Route path="/student-portal" element={<StudentPortal />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/chatbot" element={<Chatbot />} />
       </Routes>
     </Router>
   );

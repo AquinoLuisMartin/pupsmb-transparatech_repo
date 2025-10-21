@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 const Login = () => {
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const role = searchParams.get('role');
   
   const [formData, setFormData] = useState({
     email: '',
+    studentNumber: '',
     password: ''
   });
 
@@ -21,21 +20,45 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Logging in as ${role || 'user'}...`);
+    
+    // Demo credentials for viewer access
+    const demoCredentials = {
+      email: 'jayson@pupsmb.edu.ph',
+      studentNumber: '2022-00098-SM-0',
+      password: 'demo123'
+    };
+    
+    // Check if credentials match demo viewer account
+    if (
+      formData.email === demoCredentials.email &&
+      formData.studentNumber === demoCredentials.studentNumber &&
+      formData.password === demoCredentials.password
+    ) {
+      // Store user session info (in real app, this would be handled by backend)
+      localStorage.setItem('userSession', JSON.stringify({
+        name: 'Jayson',
+        email: formData.email,
+        studentNumber: formData.studentNumber,
+        role: 'viewer',
+        organization: 'Sample Organization'
+      }));
+      
+      // Redirect to viewer dashboard
+      navigate('/viewer');
+    } else {
+      alert('Invalid credentials! Demo credentials:\nEmail: jayson@pupsmb.edu.ph\nStudent Number: 2022-00098-SM-0\nPassword: demo123');
+    }
   };
 
   const getRoleTitle = () => {
-    if (!role) return 'User Login';
-    return role.charAt(0).toUpperCase() + role.slice(1) + ' Login';
+    return 'User Login';
   };
 
   const getSignupLink = () => {
-    return role ? `/signup?role=${role}` : '/signup';
+    return '/signup';
   };
 
   return (
-
-    //For Log In
     <div className="login">
       <div className="login__container">
         <form className="login__form" onSubmit={handleSubmit}>
@@ -45,7 +68,7 @@ const Login = () => {
 
           <div className="form-field">
             <label htmlFor="email" className="form-field__label">
-              University Email * //For Pup Webmail
+              Email
             </label>
             <input
               type="email"
@@ -54,14 +77,30 @@ const Login = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              placeholder="example@pup.edu.ph"
+              placeholder="your.email@pupsmb.edu.ph"
+              className="form-field__input"
+            />
+          </div>
+
+          <div className="form-field">
+            <label htmlFor="studentNumber" className="form-field__label">
+              Student Number
+            </label>
+            <input
+              type="text"
+              id="studentNumber"
+              name="studentNumber"
+              value={formData.studentNumber}
+              onChange={handleInputChange}
+              required
+              placeholder="2022-00098-SM-0"
               className="form-field__input"
             />
           </div>
 
           <div className="form-field">
             <label htmlFor="password" className="form-field__label">
-              Password * //For Password
+              Password
             </label>
             <input
               type="password"
@@ -76,7 +115,7 @@ const Login = () => {
           </div>
 
           <button type="submit" className="login__submit-btn">
-            Log In     //Log In Submit button
+            Log In
           </button>
 
           <div className="login__footer">
@@ -97,7 +136,7 @@ const Login = () => {
                 onClick={() => navigate('/forgot-password')}
                 className="login__link-btn"
               >
-                I forgot my password  //Forgot Password link
+                Forgot password?
               </button>
             </p>
           </div>

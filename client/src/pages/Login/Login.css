@@ -83,15 +83,10 @@
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
   margin-bottom: 1.5rem;
 }
 
-.login__submit-btn:hover {
-  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(33, 150, 243, 0.3);
-}
+
 
 .login__submit-btn:active {
   transform: translateY(0);
@@ -123,13 +118,9 @@
   font-weight: 500;
   text-decoration: none;
   padding: 0;
-  transition: color 0.3s ease;
 }
 
-.login__link-btn:hover {
-  color: #1976d2;
-  text-decoration: underline;
-}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

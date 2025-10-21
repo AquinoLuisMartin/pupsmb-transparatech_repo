@@ -95,20 +95,10 @@
 }
 
 .nav-link {
-  @apply text-blue-200 hover:text-white transition-colors;
+  @apply text-blue-200;
 }
 
-.hero-section {
-  @apply relative bg-gradient-to-r from-blue-800 to-blue-600 text-white py-32 overflow-hidden;
-}
-
-.hero-overlay {
-  @apply absolute inset-0 bg-gradient-to-r from-blue-900/50 to-purple-900/50;
-}
-
-.hero-content {
-  @apply relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center;
-}
+/* Enhanced hero section styles - removed since we're using inline styles */
 
 .hero-title {
   @apply text-4xl md:text-6xl font-bold mb-6 animate-fade-in-up;
@@ -123,23 +113,106 @@
 }
 
 .primary-button {
-  @apply bg-yellow-400 text-blue-900 px-8 py-3 rounded-lg font-semibold transition-all duration-300 shadow-lg;
+  @apply bg-blue-400 text-blue-900 px-8 py-3 rounded-lg font-semibold shadow-lg;
 }
 
 .secondary-button {
-  @apply border-2 border-white text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300;
+  @apply border-2 border-white text-white px-8 py-3 rounded-lg font-semibold;
 }
 
 .scroll-indicator {
   @apply absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce;
 }
 
+/* Custom background image effects */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer-text {
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.5) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: shimmer 3s infinite;
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+/* Enhanced glass morphism effect */
+.glass-effect {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Floating animation for particles */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-10px) rotate(120deg); }
+  66% { transform: translateY(5px) rotate(240deg); }
+}
+
+.float-animation {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Gradient text effect */
+.gradient-text {
+  background: linear-gradient(135deg, #64b5f6, #42a5f5, #2196f3);
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Scroll indicator animations */
+@keyframes scrollBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes scrollDot {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+}
+
+.scroll-bounce {
+  animation: scrollBounce 2s infinite;
+}
+
+.scroll-dot {
+  animation: scrollDot 2s infinite;
+}
+
 .section-animated {
-  @apply py-16 bg-white transform transition-all duration-1000;
+  @apply py-16 bg-white transform;
 }
 
 .section-animated-gray {
-  @apply py-16 bg-gray-50 transform transition-all duration-1000;
+  @apply py-16 bg-gray-50 transform;
 }
 
 .section-content {
@@ -155,11 +228,11 @@
 }
 
 .stat-card {
-  @apply p-6 transform transition-all duration-700;
+  @apply p-6 transform;
 }
 
 .table-container {
-  @apply bg-white shadow-lg rounded-lg overflow-hidden transition-transform duration-300;
+  @apply bg-white shadow-lg rounded-lg overflow-hidden;
 }
 
 .table-header {
@@ -179,15 +252,15 @@
 }
 
 .feature-card {
-  @apply text-center p-6 rounded-lg border border-gray-200 transition-all duration-500 transform;
+  @apply text-center p-6 rounded-lg border border-gray-200 transform;
 }
 
 .feature-icon {
-  @apply w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 transition-transform duration-300;
+  @apply w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4;
 }
 
 .footer-section {
-  @apply bg-gray-900 text-white py-12 transform transition-all duration-1000;
+  @apply bg-gray-900 text-white py-12 transform;
 }
 
 .footer-grid {
@@ -215,9 +288,7 @@ html {
   border-radius: 4px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
+
 
 body {
   margin: 0;

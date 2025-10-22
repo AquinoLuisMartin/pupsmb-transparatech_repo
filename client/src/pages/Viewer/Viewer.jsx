@@ -1,218 +1,389 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import './Viewer.css';
 
 const Viewer = () => {
-  const navigate = useNavigate();
-  
-  const [user] = useState(() => {
-    // Get user data from localStorage or use default
-    const sessionData = localStorage.getItem('userSession');
-    if (sessionData) {
-      const userData = JSON.parse(sessionData);
-      return {
-        name: userData.name,
-        organization: userData.organization,
-        role: 'Organization Member'
-      };
-    }
-    return {
-      name: 'Jayson',
-      organization: 'Sample Organization',
-      role: 'Organization Member'
-    };
-  });
+  const [activeSection, setActiveSection] = useState('dashboard');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [profileDropdownVisible, setProfileDropdownVisible] = useState(false);
+  const [documentModalVisible, setDocumentModalVisible] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
-  const handleLogout = () => {
-    localStorage.removeItem('userSession');
-    navigate('/');
-  };
-
-  const [documents] = useState([
+  const documents = [
     {
       id: 1,
-      title: 'Q3 Accomplishment Report',
-      type: 'Accomplishment Report',
-      description: 'Third quarter accomplishment report detailing all activities and events',
-      status: 'approved',
-      submittedDate: '10/10/2024',
-      submittedBy: 'Jose Rizal'
+      title: 'Annual Expense Statement',
+      description: 'Summary for university programs and events',
+      date: '01/15/2024',
+      size: '2.3 MB',
+      type: 'Financial Report',
+      tag: 'financial',
+      file: 'sample1.pdf'
+    },
+    {
+      id: 2,
+      title: 'Fund & Asset Turnover - Semester 1',
+      description: 'Detailed turnover report for departments',
+      date: '01/10/2024',
+      size: '1.1 MB',
+      type: 'Turnover of Funds & Assets',
+      tag: 'turnover',
+      file: 'sample2.pdf'
+    },
+    {
+      id: 3,
+      title: 'Q3 Official Receipt File',
+      description: 'All official receipts for third quarter budget',
+      date: '12/20/2023',
+      size: '1.8 MB',
+      type: 'Official Receipt',
+      tag: 'receipt',
+      file: 'sample3.pdf'
     }
-  ]);
-
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('All Types');
-
-  // Calculate statistics
-  const totalDocuments = documents.length;
-  const approvedDocuments = documents.filter(doc => doc.status === 'approved').length;
-  const inProgressDocuments = documents.filter(doc => doc.status === 'in-progress').length;
+  ];
 
   const filteredDocuments = documents.filter(doc => {
-    const matchesSearch = doc.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         doc.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === 'All Types' || doc.type === filterType;
-    return matchesSearch && matchesType;
+    const matchesFilter = activeFilter === 'all' || doc.tag === activeFilter;
+    const matchesSearch = doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         doc.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesFilter && matchesSearch;
   });
 
+  const handleMenuClick = (section) => {
+    setActiveSection(section);
+  };
+
+  const handleSidebarToggle = () => {
+    setSidebarCollapsed(!sidebarCollapsed);
+  };
+
+  const handleProfileClick = () => {
+    setProfileDropdownVisible(!profileDropdownVisible);
+  };
+
+  const handleViewDocument = (doc) => {
+    setSelectedDocument(doc);
+    setDocumentModalVisible(true);
+  };
+
+  const handleCloseModal = () => {
+    setDocumentModalVisible(false);
+    setSelectedDocument({});
+  };
+
+  const handleDownload = (file) => {
+    // Implement download logic here
+    console.log('Downloading:', file);
+  };
+
+  const handleLogout = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = () => {
+    // Clear any stored authentication data
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userId');
+    sessionStorage.clear();
+    
+    // Clear any cached data
+    setActiveSection('dashboard');
+    setProfileDropdownVisible(false);
+    setDocumentModalVisible(false);
+    setSelectedDocument({});
+    setSearchQuery('');
+    setActiveFilter('all');
+    
+    // Show logout message
+    alert('You have been successfully logged out.');
+    
+    // Redirect to login page
+    window.location.href = '/login';
+  };
+
+  const cancelLogout = () => {
+    setShowLogoutConfirm(false);
+    setProfileDropdownVisible(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileDropdownVisible && !event.target.closest('.account')) {
+        setProfileDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileDropdownVisible]);
+
   return (
-    <div className="viewer">
-      {/* Navigation Bar */}
-      <nav className="viewer__nav">
-        <div className="viewer__nav-content">
-          <div className="viewer__logo">
-            <div className="logo-circle">PUP</div>
-            <div className="logo-text">
-              <h2>PUPSMB TransparaTech</h2>
-              <span>Transparency & Governance System</span>
-            </div>
+    <div className={`dashboard-container ${sidebarCollapsed ? 'sidebar-collapsed' : ''}`}>
+      {/* SIDEBAR */}
+      <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`} id="sidebar">
+        <div className="sidebar-header">
+          <div className="brand-group">
+            <h2 className="brand">TransparaTech</h2>
+            <p className="subtext">Viewer</p>
           </div>
-          
-          <div className="viewer__user-profile">
-            <div className="user-icon">👤</div>
-            <span className="user-name">{user.name}</span>
-            <button onClick={handleLogout} className="logout-btn">Logout</button>
-          </div>
-        </div>
-      </nav>
 
-      {/* Main Content */}
-      <main className="viewer__main">
-        {/* Header Section */}
-        <div className="viewer__header">
-          <div className="viewer__header-content">
-            <div className="dashboard-title">
-              <div className="title-icon">👤</div>
-              <div>
-                <h1>Member Dashboard</h1>
-                <p>Welcome back, {user.name}</p>
-              </div>
-            </div>
-          </div>
+          <button 
+            className="collapse-btn" 
+            onClick={handleSidebarToggle}
+            aria-expanded={!sidebarCollapsed}
+            aria-label="Toggle sidebar"
+          >
+            <i className="bx bx-chevrons-right"></i>
+          </button>
         </div>
 
-        {/* Organization Info Card */}
-        <div className="viewer__content">
-          <div className="organization-card">
-            <h3>{user.organization}</h3>
-            <p>{user.role}</p>
+        <nav className="sidebar-menu" role="navigation" aria-label="Main">
+          <button 
+            className={`menu-item ${activeSection === 'dashboard' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('dashboard')}
+            type="button"
+          >
+            <i className="bx bxs-dashboard"></i>
+            <span>Dashboard</span>
+          </button>
+
+          <button 
+            className={`menu-item ${activeSection === 'documents' ? 'active' : ''}`}
+            onClick={() => handleMenuClick('documents')}
+            type="button"
+          >
+            <i className="bx bxs-file-doc"></i>
+            <span>Documents</span>
+          </button>
+        </nav>
+
+        <div className="sidebar-footer">
+          <p className="watermark">© TransparaTech</p>
+          <button className="signout-btn small" onClick={handleLogout}>
+            <i className="bx bx-log-out"></i>
+            <span>Sign Out</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <main className="main-content">
+        {/* TOPBAR */}
+        <header className="topbar">
+          <div className="left-actions">
+            <h1 className="page-title">
+              {activeSection === 'dashboard' ? 'Dashboard' : 'Documents'}
+            </h1>
           </div>
 
-          {/* Statistics Cards */}
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-icon blue">📄</div>
-              <div className="stat-content">
-                <h3>{totalDocuments}</h3>
-                <p>Total Documents</p>
-                <span>Organization documents</span>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon green">✅</div>
-              <div className="stat-content">
-                <h3>{approvedDocuments}</h3>
-                <p>Approved</p>
-                <span>Successfully approved</span>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon orange">⏳</div>
-              <div className="stat-content">
-                <h3>{inProgressDocuments}</h3>
-                <p>In Progress</p>
-                <span>Under review</span>
-              </div>
-            </div>
+          <div className="center-actions">
+            <input 
+              type="text" 
+              placeholder="Search current section..." 
+              className="search-bar"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
-          {/* Documents Section */}
-          <div className="documents-section">
-            <div className="documents-header">
-              <h2>Organization Documents</h2>
-              <p>View all documents submitted by {user.organization}</p>
-            </div>
-
-            {/* Search and Filter */}
-            <div className="documents-controls">
-              <div className="search-box">
-                <input
-                  type="text"
-                  placeholder="Search documents..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="search-input"
-                />
-              </div>
-              <select
-                value={filterType}
-                onChange={(e) => setFilterType(e.target.value)}
-                className="filter-select"
-              >
-                <option value="All Types">All Types</option>
-                <option value="Accomplishment Report">Accomplishment Report</option>
-                <option value="Financial Report">Financial Report</option>
-                <option value="Activity Report">Activity Report</option>
-              </select>
-            </div>
-
-            {/* Documents List */}
-            <div className="documents-list">
-              {filteredDocuments.map(document => (
-                <div key={document.id} className="document-card">
-                  <div className="document-info">
-                    <div className="document-header">
-                      <h3>{document.title}</h3>
-                      <span className={`status-badge ${document.status}`}>
-                        {document.status === 'approved' ? 'approved' : 'in progress'}
-                      </span>
-                      <span className="document-type">{document.type}</span>
-                    </div>
-                    <p className="document-description">{document.description}</p>
-                    <div className="document-meta">
-                      <span>Submitted: {document.submittedDate}</span>
-                      <span>By: {document.submittedBy}</span>
-                    </div>
-                  </div>
-                  <div className="document-actions">
-                    <button className="action-btn view">
-                      <span className="btn-icon">👁</span>
-                      View
-                    </button>
-                    <button className="action-btn download">
-                      <span className="btn-icon">⬇</span>
-                    </button>
+          <div className="right-actions">
+            {/* PROFILE SECTION */}
+            <div className="account">
+              <img 
+                src="/api/placeholder/40/40" 
+                alt="User" 
+                className="profile-img" 
+                onClick={handleProfileClick}
+              />
+              <div className={`account-dropdown ${profileDropdownVisible ? 'visible' : ''}`}>
+                <div className="account-info">
+                  <img src="/api/placeholder/42/42" alt="User" />
+                  <div className="details">
+                    <span className="name">John Doe</span>
+                    <span className="email">john.doe@example.com</span>
+                    <span className="role">Viewer</span>
                   </div>
                 </div>
-              ))}
+                <div className="divider"></div>
+                <button onClick={handleLogout}>Log Out</button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* DASHBOARD SECTION */}
+        <section 
+          id="dashboardSection" 
+          className={`section ${activeSection !== 'dashboard' ? 'hidden' : ''}`}
+        >
+          <div className="section-header">
+            <h2 className="section-title">Dashboard Overview</h2>
+          </div>
+
+          <div className="stats-grid">
+            <div className="stat-card">
+              <h3>Total Expenses</h3>
+              <p>₱565,000</p>
+            </div>
+            <div className="stat-card">
+              <h3>Total Budget</h3>
+              <p>₱800,000</p>
+            </div>
+            <div className="stat-card">
+              <h3>Remaining Budget</h3>
+              <p>₱235,000</p>
             </div>
           </div>
 
-          {/* About Member Access */}
-          <div className="access-info">
-            <h3>About Member Access</h3>
-            <p>
-              As a member of <strong>{user.organization}</strong>, you have view-only access to all documents submitted by your organization.
-            </p>
-            <ul className="access-features">
-              <li>
-                <span className="feature-icon">✅</span>
-                View all documents submitted by your organization
-              </li>
-              <li>
-                <span className="feature-icon">✅</span>
-                Track approval status and progress
-              </li>
-              <li>
-                <span className="feature-icon">✅</span>
-                Download approved certificates
-              </li>
-            </ul>
+          <div className="posts-container">
+            <h3 style={{ marginBottom: '8px' }}>Recent Documents</h3>
+            <div className="post-card">
+              <strong>Annual Expense Statement</strong>
+              <p>Summary for university programs and events</p>
+            </div>
+            <div className="post-card" style={{ marginTop: '10px' }}>
+              <strong>Fund & Asset Turnover - Semester 1</strong>
+              <p>Detailed turnover report for departments</p>
+            </div>
+          </div>
+        </section>
+
+        {/* DOCUMENTS SECTION */}
+        <section 
+          id="documentsSection" 
+          className={`section ${activeSection !== 'documents' ? 'hidden' : ''}`}
+        >
+          <div className="section-header" style={{ alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
+            <h2 className="section-title">Documents</h2>
+
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input 
+                type="text" 
+                placeholder="Search documents..." 
+                className="search-bar" 
+                style={{ width: '240px', marginLeft: '8px' }}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <div className="doc-filters" style={{ marginLeft: '8px' }}>
+                <button 
+                  className={`filter ${activeFilter === 'all' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('all')}
+                >
+                  All
+                </button>
+                <button 
+                  className={`filter ${activeFilter === 'financial' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('financial')}
+                >
+                  Financial Report
+                </button>
+                <button 
+                  className={`filter ${activeFilter === 'turnover' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('turnover')}
+                >
+                  Turnover
+                </button>
+                <button 
+                  className={`filter ${activeFilter === 'receipt' ? 'active' : ''}`}
+                  onClick={() => setActiveFilter('receipt')}
+                >
+                  Official Receipt
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="documents-list">
+            {filteredDocuments.map((doc) => (
+              <div key={doc.id} className="doc-card" data-tag={doc.tag}>
+                <i className="bx bxs-file-pdf doc-icon"></i>
+                <div className="doc-content">
+                  <span className="doc-title">{doc.title}</span>
+                  <span className="doc-desc">
+                    <br />
+                    {doc.description}
+                  </span>
+                  <span className="doc-meta">
+                    <br />
+                    {doc.date} · {doc.size} · PDF<br />
+                  </span>
+                  <span className="doc-type">{doc.type}</span>
+                </div>
+                <div className="doc-actions">
+                  <button 
+                    className="view-btn"
+                    onClick={() => handleViewDocument(doc)}
+                  >
+                    View
+                  </button>
+                  <button 
+                    className="download-btn" 
+                    onClick={() => handleDownload(doc.file)}
+                  >
+                    Download
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* VIEW MODAL */}
+      {documentModalVisible && (
+        <div className="modal-overlay" style={{ display: 'flex' }}>
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>{selectedDocument.title}</h3>
+              <button className="close-modal" onClick={handleCloseModal}>
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>{selectedDocument.description}</p>
+              <div className="file-preview">📄 File Preview (Coming Soon)</div>
+            </div>
           </div>
         </div>
-      </main>
+      )}
+
+      {/* LOGOUT CONFIRMATION MODAL */}
+      {showLogoutConfirm && (
+        <div className="modal-overlay" style={{ display: 'flex' }}>
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Confirm Logout</h3>
+              <button className="close-modal" onClick={cancelLogout}>
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>Are you sure you want to log out? Any unsaved changes will be lost.</p>
+              <div className="logout-actions">
+                <button 
+                  className="confirm-logout-btn"
+                  onClick={confirmLogout}
+                >
+                  Yes, Log Out
+                </button>
+                <button 
+                  className="cancel-logout-btn"
+                  onClick={cancelLogout}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

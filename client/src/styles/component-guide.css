@@ -1,0 +1,226 @@
+/* TransparaTech Global Component Usage Guide */
+
+/*
+====================================
+PLUS JAKARTA SANS FONT INTEGRATION
+====================================
+
+The Plus Jakarta Sans font is now globally available with all weights:
+- Light (300), Normal (400), Medium (500), Semibold (600), Bold (700), Extrabold (800)
+- Both regular and italic variants
+
+Usage in CSS:
+font-family: 'Plus Jakarta Sans', sans-serif;
+
+Usage with CSS Variables:
+font-weight: var(--font-weight-medium);
+font-weight: var(--font-weight-semibold);
+font-weight: var(--font-weight-bold);
+
+====================================
+BUTTON COMPONENT EXAMPLES
+====================================
+
+<!-- Primary Button -->
+<button className="btn btn-primary">Primary Action</button>
+
+<!-- Secondary Button -->
+<button className="btn btn-secondary">Secondary Action</button>
+
+<!-- Outline Button -->
+<button className="btn btn-outline">Outline Button</button>
+
+<!-- Ghost Button -->
+<button className="btn btn-ghost">Ghost Button</button>
+
+<!-- Danger Button -->
+<button className="btn btn-danger">Delete</button>
+
+<!-- Button Sizes -->
+<button className="btn btn-primary btn-sm">Small</button>
+<button className="btn btn-primary">Default</button>
+<button className="btn btn-primary btn-lg">Large</button>
+
+<!-- Full Width Button -->
+<button className="btn btn-primary btn-full">Full Width</button>
+
+====================================
+FORM COMPONENT EXAMPLES
+====================================
+
+<div className="form-field">
+  <label className="form-field__label">Email Address</label>
+  <input 
+    type="email" 
+    className="form-field__input" 
+    placeholder="your.email@pupsmb.edu.ph"
+  />
+</div>
+
+<div className="form-field">
+  <label className="form-field__label">Organization</label>
+  <select className="form-field__select">
+    <option value="">Select Organization</option>
+    <option value="aces">ACES</option>
+  </select>
+</div>
+
+<div className="form-field form-field--error">
+  <label className="form-field__label">Password</label>
+  <input type="password" className="form-field__input" />
+  <div className="form-field__error">Password is required</div>
+</div>
+
+====================================
+CARD COMPONENT EXAMPLES
+====================================
+
+<div className="card">
+  <div className="card__header">
+    <h3 className="card__title">Document Title</h3>
+    <p className="card__subtitle">PDF Document</p>
+  </div>
+  <div className="card__body">
+    <p>Card content goes here...</p>
+  </div>
+  <div className="card__footer">
+    <button className="btn btn-primary btn-sm">View</button>
+  </div>
+</div>
+
+<!-- Card Variants -->
+<div className="card card--elevated">Elevated Card</div>
+<div className="card card--bordered">Bordered Card</div>
+
+====================================
+MODAL COMPONENT EXAMPLES
+====================================
+
+<div className="modal-overlay">
+  <div className="modal">
+    <div className="modal__header">
+      <h3 className="modal__title">Modal Title</h3>
+      <button className="modal__close">&times;</button>
+    </div>
+    <div className="modal__body">
+      <p>Modal content...</p>
+    </div>
+    <div className="modal__footer">
+      <button className="btn btn-ghost">Cancel</button>
+      <button className="btn btn-primary">Confirm</button>
+    </div>
+  </div>
+</div>
+
+====================================
+LAYOUT UTILITY EXAMPLES
+====================================
+
+<!-- Flexbox Layout -->
+<div className="flex items-center justify-between gap-md">
+  <h1>Title</h1>
+  <button className="btn btn-primary">Action</button>
+</div>
+
+<!-- Grid Layout -->
+<div className="grid grid-cols-3 gap-lg">
+  <div className="card">Card 1</div>
+  <div className="card">Card 2</div>
+  <div className="card">Card 3</div>
+</div>
+
+<!-- Auto-fit Grid (Responsive) -->
+<div className="grid grid-auto-fit gap-md">
+  <div className="card">Responsive Card</div>
+  <div className="card">Responsive Card</div>
+</div>
+
+====================================
+TYPOGRAPHY EXAMPLES
+====================================
+
+<h1>Main Heading (Plus Jakarta Sans Extrabold)</h1>
+<h2>Section Heading (Plus Jakarta Sans Bold)</h2>
+<h3>Subsection (Plus Jakarta Sans Semibold)</h3>
+
+<p className="text-lg text-semibold">Large semibold text</p>
+<p className="text-base text-normal">Normal body text</p>
+<p className="text-sm text-muted">Small muted text</p>
+
+====================================
+COLOR SYSTEM USAGE
+====================================
+
+CSS Variables:
+- Primary: var(--brand-primary) #1565c0
+- Secondary: var(--brand-secondary) #2196f3
+- Text: var(--text-primary), var(--text-secondary), var(--text-muted)
+- Background: var(--background-primary), var(--background-secondary)
+- Success: var(--success) #4caf50
+- Error: var(--error) #d32f2f
+
+Utility Classes:
+<div className="text-brand bg-white">Blue text on white</div>
+<div className="text-white bg-primary">White text on blue</div>
+
+====================================
+SPACING & SHADOW EXAMPLES
+====================================
+
+<div className="p-lg m-md shadow-md rounded-lg">
+  Padded, margined, shadowed, rounded container
+</div>
+
+<div className="card shadow-xl">
+  Card with extra large shadow
+</div>
+
+====================================
+RESPONSIVE DESIGN
+====================================
+
+The system is mobile-first responsive:
+- Grid columns stack on mobile
+- Font sizes scale down appropriately
+- Modals adapt to screen size
+- Flex layouts become vertical on mobile
+
+====================================
+ACCESSIBILITY FEATURES
+====================================
+
+- Proper focus states for all interactive elements
+- Screen reader support with .sr-only class
+- Reduced motion support for accessibility
+- Semantic color contrast ratios
+- Keyboard navigation support
+
+====================================
+COMPONENT INTEGRATION EXAMPLES
+====================================
+
+Replace existing button styles with:
+className="btn btn-primary" instead of custom CSS
+
+Replace form inputs with:
+className="form-field__input" for consistent styling
+
+Use cards for content containers:
+className="card" with card__header, card__body, card__footer
+
+Apply consistent spacing:
+className="p-lg gap-md" instead of custom padding/margins
+
+====================================
+MIGRATION GUIDE
+====================================
+
+1. Import global.css in index.js (already done)
+2. Replace custom button classes with .btn variants
+3. Update form elements to use .form-field system
+4. Convert content containers to .card components
+5. Use utility classes for spacing and layout
+6. Apply CSS variables for colors throughout existing CSS files
+7. Update modal implementations to use .modal system
+
+*/

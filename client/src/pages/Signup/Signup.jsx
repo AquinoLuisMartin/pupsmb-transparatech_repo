@@ -112,6 +112,18 @@ const Signup = () => {
       
       alert('Account created successfully! Redirecting to your dashboard...');
       navigate('/viewer');
+    } else if (formData.accountType === 'administrator') {
+      // Store admin session info
+      localStorage.setItem('userSession', JSON.stringify({
+        name: formData.firstName,
+        email: formData.email,
+        studentNumber: formData.studentNumber,
+        role: 'admin',
+        organization: getOrgName(formData.organization)
+      }));
+      
+      alert('Admin account created successfully! Redirecting to admin dashboard...');
+      navigate('/admin');
     } else {
       // For other roles, show success message (can be extended later)
       alert(`Account created successfully for ${formData.accountType} role! Dashboard for this role is not yet implemented.`);

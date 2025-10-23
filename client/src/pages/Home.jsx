@@ -48,7 +48,7 @@ const FEATURES_DATA = [
     ),
     title: 'Automation Solutions',
     subtitle: 'Reducing manual work, increasing productivity',
-    description: '',
+    description: 'Simplify and accelerate your processes through intelligent automation tools that handle repetitive tasks, data entry, and reporting - allowing your team to focus on what truly matters.',
     bgColor: 'bg-green-100'
   },
   {
@@ -60,7 +60,7 @@ const FEATURES_DATA = [
     ),
     title: 'Data Management Services',
     subtitle: 'Transparent, efficient, and accessible from anywhere',
-    description: '',
+    description: 'We provide comprehensive data management solutions that enhance organization, accessibility, and reliability. Our services ensure seamless data handling and scalable systems that promote operational transparency and efficiency',
     bgColor: 'bg-purple-100'
   }
 ];
@@ -138,10 +138,10 @@ const Home = () => {
         <div className="header-content">
           <div className="logo-container">
             <div className="flex items-center mr-3">
-              <img src={navLogo} alt="PUPSMB Logo" className="w-12 h-12 object-contain" />
+              <img src={navLogo} alt="PUPSMB Logo" className="w-14 h-14 object-contain drop-shadow-sm" />
             </div>
             <div>
-              <h1 className="text-xl font-bold">PUPSMB TransparaTech</h1>
+              <h1 className="text-xl font-bold text-white">PUPSMB TransparaTech</h1>
               <p className="text-blue-200 text-sm">Official Management System of PUPSMB</p>
             </div>
           </div>
@@ -237,7 +237,7 @@ const Home = () => {
       <p className="text-gray-600">
         <strong>{feature.subtitle}</strong>
       </p>
-      {feature.description && <p className="text-gray-600">{feature.description}</p>}
+      {feature.description && <p className="text-gray-600 text-justify indent-8">{feature.description}</p>}
     </div>
   );
 
@@ -258,18 +258,16 @@ const Home = () => {
         <div className="section-content">
           <div className="section-header">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">About Transparatech</h2>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600 text-lg text-justify indent-8">
               The PUP Sta. Maria Campus Transparency Portal is a digital platform dedicated to{' '}
               <strong>promoting openness, accountability, and responsible governance</strong>{' '}
               within the university community. It serves as a central hub for managing, submitting, 
               and reviewing organizational and financial reports with clarity and integrity.
-              <br /><br />
               Our mission is to <em>strengthen trust between students, organizations, and administrators</em>{' '}
               by ensuring that all processes are transparent, ethical, and efficiently documented. 
               Through this initiative, we aim to foster a culture of{' '}
               <strong>honesty, collaboration, and good governance</strong>{' '}
               that reflects the true spirit of the Polytechnic University of the Philippines.
-              <br /><br />
               More than a system for compliance, the PUPSMB Transparency Portal is a commitment —{' '}
               <em>a step toward building a transparent, accountable, and progressive student community.</em>
             </p>

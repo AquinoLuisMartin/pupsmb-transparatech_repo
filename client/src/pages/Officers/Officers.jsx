@@ -1,18 +1,22 @@
+// React core imports and component styles
 import React, { useState, useEffect, useCallback } from 'react';
 import './Officers.css';
 
 const Officers = () => {
-  // Check authentication on component mount
+  // User authentication state - retrieved from localStorage
   const [userSession] = useState(() => {
     const session = localStorage.getItem('userSession');
     return session ? JSON.parse(session) : null;
   });
 
-  const [activeTab, setActiveTab] = useState('documents');
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
-  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  // UI state management
+  const [activeSection, setActiveSection] = useState('documents'); // Current active section
+  const [isExpanded, setIsExpanded] = useState(false); // Sidebar expansion state
+  const [isPinned, setIsPinned] = useState(false); // Sidebar pin state
+  const [isMobileOpen, setIsMobileOpen] = useState(false); // Mobile sidebar state
+  const [profileDropdownVisible, setProfileDropdownVisible] = useState(false); // Profile dropdown visibility
 
-  // Sample data
+  // Sample document data - officer's submitted documents
   const [documents] = useState([
     {
       id: 1,
@@ -37,6 +41,7 @@ const Officers = () => {
     }
   ]);
 
+  // Activity history data - recent document actions
   const [activities] = useState([
     {
       id: 1,
@@ -61,17 +66,85 @@ const Officers = () => {
     }
   ]);
 
+  // Upload form state - manages document upload data
   const [uploadForm, setUploadForm] = useState({
     title: '',
     type: 'Financial Report',
     file: null
   });
 
-  // All handlers defined before any early returns
-  const handleTabChange = useCallback((tab) => {
-    setActiveTab(tab);
+  // Load sidebar pin state from localStorage on component mount
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebarPinned");
+    if (saved === "true") {
+      setIsPinned(true);
+      setIsExpanded(true);
+    }
   }, []);
 
+  // Save sidebar pin state to localStorage when changed
+  useEffect(() => {
+    localStorage.setItem("sidebarPinned", isPinned);
+  }, [isPinned]);
+
+  // Navigation handler - switches active section and closes mobile sidebar
+  const handleMenuClick = useCallback((section) => {
+    setActiveSection(section);
+    // Close mobile sidebar after navigation
+    if (window.innerWidth <= 768) {
+      setIsMobileOpen(false);
+    }
+  }, []);
+
+  // Sidebar mouse handlers - expand on hover for desktop
+  const handleMouseEnter = useCallback(() => {
+    if (!isPinned && window.innerWidth > 768) {
+      setIsExpanded(true);
+    }
+  }, [isPinned]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (!isPinned && window.innerWidth > 768) {
+      setIsExpanded(false);
+    }
+  }, [isPinned]);
+
+  // Sidebar toggle handler - manages mobile drawer and desktop pin state
+  const handleSidebarToggle = useCallback(() => {
+    if (window.innerWidth <= 768) {
+      setIsMobileOpen(!isMobileOpen);
+    } else {
+      setIsPinned(!isPinned);
+      if (!isPinned) {
+        setIsExpanded(true);
+      } else {
+        setIsExpanded(false);
+      }
+    }
+  }, [isPinned, isMobileOpen]);
+
+  // Overlay click handler - closes mobile sidebar
+  const handleOverlayClick = useCallback(() => {
+    setIsMobileOpen(false);
+  }, []);
+
+  // Icon click wrapper - expands sidebar before performing action
+  const handleIconClick = useCallback((action) => {
+    if (!isExpanded && !isPinned && window.innerWidth > 768) {
+      setIsExpanded(true);
+    }
+    action();
+  }, [isExpanded, isPinned]);
+
+  // Keyboard navigation handler - enables Enter and Space key interactions
+  const handleKeyDown = useCallback((event, action) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      handleIconClick(action);
+    }
+  }, [handleIconClick]);
+
+  // Logout handler - confirms and clears user session
   const handleLogout = useCallback(() => {
     if (window.confirm('Are you sure you want to logout?')) {
       localStorage.removeItem('userSession');
@@ -80,6 +153,7 @@ const Officers = () => {
     }
   }, []);
 
+  // Form input handler - updates upload form state
   const handleFormChange = useCallback((e) => {
     const { name, value, files } = e.target;
     setUploadForm(prev => ({
@@ -88,6 +162,7 @@ const Officers = () => {
     }));
   }, []);
 
+  // Upload submission handler - validates and processes document upload
   const handleUploadSubmit = useCallback((e) => {
     e.preventDefault();
     if (!uploadForm.title || !uploadForm.file) {
@@ -107,15 +182,17 @@ const Officers = () => {
     if (fileInput) fileInput.value = '';
   }, [uploadForm]);
 
+  // Document view handler - opens document for viewing
   const handleViewDocument = useCallback((doc) => {
     alert(`Viewing document: ${doc.title}`);
   }, []);
 
+  // Document download handler - initiates document download
   const handleDownloadDocument = useCallback((doc) => {
     alert(`Downloading document: ${doc.title}`);
   }, []);
 
-  // Authentication check
+  // Authentication effect - validates officer access
   useEffect(() => {
     if (!userSession || userSession.role !== 'officer') {
       alert('Access denied. Organization Officer credentials required.');
@@ -123,17 +200,57 @@ const Officers = () => {
     }
   }, [userSession]);
 
-  // Close dropdown when clicking outside
+  // Profile dropdown effect - handles outside clicks
   useEffect(() => {
-    const handleClickOutside = () => {
-      setShowProfileDropdown(false);
+    const handleClickOutside = (event) => {
+      if (profileDropdownVisible && !event.target.closest('.account')) {
+        setProfileDropdownVisible(false);
+      }
     };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileDropdownVisible]);
+
+  // Mobile sidebar effect - closes on outside clicks
+  useEffect(() => {
+    const handleSidebarClickOutside = (event) => {
+      if (window.innerWidth <= 768 && 
+          isMobileOpen && 
+          !event.target.closest('.sidebar') && 
+          !event.target.closest('.collapse-btn')) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleSidebarClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleSidebarClickOutside);
+    };
+  }, [isMobileOpen]);
+
+  // Window resize effect - manages sidebar state across screen sizes
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setIsMobileOpen(false);
+        setIsExpanded(false);
+      } else {
+        setIsMobileOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call once on mount
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
-  // Show loading if not authenticated
+  // Authentication guard - renders access denied screen for unauthorized users
   if (!userSession || userSession.role !== 'officer') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -146,9 +263,9 @@ const Officers = () => {
     );
   }
 
+  // Document grid renderer - displays documents in card layout
   const renderDocuments = () => (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-800">My Documents</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {documents.map((doc) => (
           <div key={doc.id} className="bg-white rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
@@ -188,9 +305,9 @@ const Officers = () => {
     </div>
   );
 
+  // Upload form renderer - displays document upload interface
   const renderUpload = () => (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-800">Upload New Document</h2>
       <div className="bg-white rounded-xl border border-gray-200 p-8 max-w-2xl">
         <form onSubmit={handleUploadSubmit} className="space-y-6">
           <div>
@@ -257,9 +374,9 @@ const Officers = () => {
     </div>
   );
 
+  // Activity timeline renderer - displays recent activity history
   const renderActivity = () => (
     <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-gray-800">Recent Activity</h2>
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         {activities.length > 0 ? (
           <ul className="space-y-4">
@@ -284,122 +401,211 @@ const Officers = () => {
     </div>
   );
 
+  // Main component render - officer dashboard with sidebar and content areas
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
-      <aside 
-        className={`bg-indigo-800 text-white flex flex-col sidebar-transition overflow-hidden ${
-          sidebarExpanded ? 'w-64' : 'w-20 hover:w-64'
-        }`}
-        onMouseEnter={() => setSidebarExpanded(true)}
-        onMouseLeave={() => setSidebarExpanded(false)}
-      >
-        {/* Header */}
-        <div className="p-6 text-center">
-          <div className="sidebar-content-transition">
-            <h2 className={`font-extrabold transition-all duration-300 ${sidebarExpanded ? 'text-xl' : 'text-lg'}`}>
-              TT
-            </h2>
-            <p className={`text-sm opacity-80 transition-all duration-300 ${
-              sidebarExpanded ? 'opacity-80 visible' : 'opacity-0 invisible'
-            }`}>
-              PUP
-            </p>
-          </div>
-        </div>
+    <>
+      {/* Mobile overlay for sidebar */}
+      {isMobileOpen && (
+        <div
+          className="sidebar-overlay"
+          onClick={handleOverlayClick}
+        ></div>
+      )}
 
-        {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-4">
-          {[
-            { id: 'documents', icon: '📁', label: 'My Documents' },
-            { id: 'upload', icon: '⬆️', label: 'Upload' },
-            { id: 'activity', icon: '📊', label: 'Activity' }
-          ].map(item => (
-            <button
-              key={item.id}
-              onClick={() => handleTabChange(item.id)}
-              className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-20 ${
-                activeTab === item.id 
-                  ? 'bg-white text-indigo-800 shadow-lg' 
-                  : 'hover:bg-indigo-700 text-white'
-              }`}
-            >
-              <span className="text-xl min-w-[24px] text-center">{item.icon}</span>
-              <span className={`font-semibold transition-all duration-300 ${
-                sidebarExpanded ? 'opacity-100 visible' : 'opacity-0 invisible'
-              }`}>
-                {item.label}
-              </span>
-            </button>
-          ))}
-        </nav>
-
-        {/* Footer */}
-        <div className={`p-4 text-center text-sm opacity-70 transition-all duration-300 ${
-          sidebarExpanded ? 'opacity-70 visible' : 'opacity-0 invisible'
-        }`}>
-          © TransparaTech
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        {/* Topbar */}
-        <header className="bg-white shadow-sm p-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">Organization Officer Dashboard</h1>
-          
-          <div className="relative">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowProfileDropdown(!showProfileDropdown);
-              }}
-              className="flex items-center gap-3 hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              <img
-                src="https://via.placeholder.com/40"
-                alt="Profile"
-                className="w-9 h-9 rounded-full border-2 border-indigo-700"
-              />
-              <span className="font-semibold text-gray-700">
-                {userSession?.name || 'Juan Dela Cruz'}
-              </span>
-            </button>
-
-            {showProfileDropdown && (
-              <div className="absolute right-0 top-12 bg-white rounded-xl shadow-lg p-4 w-56 z-50 dropdown-enter border border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <img
-                    src="https://via.placeholder.com/45"
-                    alt="Profile"
-                    className="w-11 h-11 rounded-full"
-                  />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      {userSession?.name || 'Juan Dela Cruz'}
-                    </p>
-                    <p className="text-sm text-gray-600">Organization Officer</p>
-                  </div>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="w-full bg-indigo-700 text-white px-4 py-2 rounded-lg font-semibold hover:bg-indigo-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      <div className={`dashboard-container ${
+        isMobileOpen
+          ? 'mobile-sidebar-open'
+          : isExpanded || isPinned
+          ? 'sidebar-expanded'
+          : 'sidebar-collapsed'
+      }`}>
+        {/* ADVANCED COLLAPSIBLE SIDEBAR */}
+        <aside 
+          className={`sidebar ${
+            isMobileOpen
+              ? 'mobile-open'
+              : isExpanded || isPinned
+              ? 'expanded'
+              : 'collapsed'
+          }`} 
+          id="sidebar"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div className="sidebar-header">
+            <div className="brand-group">
+              <h2 className="brand" style={{ color: 'white' }}>TransparaTech</h2>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                gap: '8px'
+              }}>
+                <p className="subtext" style={{ color: '#B8B8B8' }}>Officer</p>
+                <button 
+                  className={`collapse-btn ${isPinned ? 'pinned' : ''}`}
+                  onClick={handleSidebarToggle}
+                  aria-expanded={isExpanded || isPinned}
+                  aria-label={window.innerWidth <= 768 ? "Toggle mobile menu" : (isPinned ? "Unpin sidebar" : "Pin sidebar")}
+                  title={window.innerWidth <= 768 ? "Toggle menu" : (isPinned ? "Unpin sidebar" : "Pin sidebar")}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: 'white',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minWidth: '24px',
+                    height: '24px'
+                  }}
                 >
-                  Logout
+                  <i className={`bx ${window.innerWidth <= 768 ? 'bx-menu' : (isPinned ? 'bx-pin' : 'bx-chevrons-right')}`}></i>
                 </button>
               </div>
-            )}
+            </div>
           </div>
-        </header>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 content-scroll">
-          {activeTab === 'documents' && renderDocuments()}
-          {activeTab === 'upload' && renderUpload()}
-          {activeTab === 'activity' && renderActivity()}
-        </div>
-      </main>
-    </div>
+          <nav className="sidebar-menu" role="navigation" aria-label="Main">
+            <button 
+              className={`menu-item ${activeSection === 'documents' ? 'active' : ''}`}
+              onClick={() => handleIconClick(() => handleMenuClick('documents'))}
+              onKeyDown={(e) => handleKeyDown(e, () => handleMenuClick('documents'))}
+              type="button"
+              aria-label="My Documents"
+              aria-pressed={activeSection === 'documents'}
+            >
+              <i className="bx bxs-file-doc"></i>
+              <span>My Documents</span>
+            </button>
+
+            <button 
+              className={`menu-item ${activeSection === 'upload' ? 'active' : ''}`}
+              onClick={() => handleIconClick(() => handleMenuClick('upload'))}
+              onKeyDown={(e) => handleKeyDown(e, () => handleMenuClick('upload'))}
+              type="button"
+              aria-label="Upload"
+              aria-pressed={activeSection === 'upload'}
+            >
+              <i className="bx bx-upload"></i>
+              <span>Upload</span>
+            </button>
+
+            <button 
+              className={`menu-item ${activeSection === 'activity' ? 'active' : ''}`}
+              onClick={() => handleIconClick(() => handleMenuClick('activity'))}
+              onKeyDown={(e) => handleKeyDown(e, () => handleMenuClick('activity'))}
+              type="button"
+              aria-label="Activity"
+              aria-pressed={activeSection === 'activity'}
+            >
+              <i className="bx bx-history"></i>
+              <span>Activity</span>
+            </button>
+          </nav>
+
+          <div className="sidebar-footer">
+            <p className="watermark">© TransparaTech</p>
+            <button 
+              className="signout-btn small" 
+              onClick={() => handleIconClick(handleLogout)}
+              type="button"
+              aria-label="Sign out"
+            >
+              <i className="bx bx-log-out"></i>
+              <span>Sign Out</span>
+            </button>
+          </div>
+        </aside>
+
+        {/* MAIN */}
+        <main className="main-content">
+          {/* TOPBAR */}
+          <header className="topbar">
+            <div className="left-actions">
+              <h1 className="page-title">
+                <strong style={{ fontSize: '1.3em' }}>
+                  {activeSection === 'documents' ? 'My Documents' : 
+                   activeSection === 'upload' ? 'Upload Document' : 
+                   activeSection === 'activity' ? 'Recent Activity' :
+                   'Organization Officer Dashboard'}
+                </strong>
+              </h1>
+            </div>
+
+            <div className="center-actions">
+              {/* Keep empty for consistency with Viewer layout */}
+            </div>
+
+            <div className="right-actions">
+              {/* PROFILE SECTION */}
+              <div className="account">
+                <img 
+                  src="/api/placeholder/40/40" 
+                  alt="User" 
+                  className="profile-img" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setProfileDropdownVisible(!profileDropdownVisible);
+                  }}
+                />
+                <div className={`account-dropdown ${profileDropdownVisible ? 'visible' : ''}`}>
+                  <div className="account-info">
+                    <img src="/api/placeholder/42/42" alt="User" />
+                    <div className="details">
+                      <span className="name">{userSession?.name || 'Juan Dela Cruz'}</span>
+                      <span className="email">{userSession?.email || 'juan@pup.edu.ph'}</span>
+                      <span className="role">Organization Officer</span>
+                    </div>
+                  </div>
+                  <div className="divider"></div>
+                  <button onClick={handleLogout}>Log Out</button>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* CONTENT SECTIONS */}
+          <section 
+            className={`section ${activeSection !== 'documents' ? 'hidden' : ''}`}
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              padding: '0 24px',
+              width: '100%'
+            }}
+          >
+            {renderDocuments()}
+          </section>
+
+          <section 
+            className={`section ${activeSection !== 'upload' ? 'hidden' : ''}`}
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              padding: '0 24px',
+              width: '100%'
+            }}
+          >
+            {renderUpload()}
+          </section>
+
+          <section 
+            className={`section ${activeSection !== 'activity' ? 'hidden' : ''}`}
+            style={{
+              maxWidth: '1200px',
+              margin: '0 auto',
+              padding: '0 24px',
+              width: '100%'
+            }}
+          >
+            {renderActivity()}
+          </section>
+        </main>
+      </div>
+    </>
   );
 };
 

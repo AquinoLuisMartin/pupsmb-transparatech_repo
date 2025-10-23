@@ -1,16 +1,23 @@
+// React core imports and component styles
 import React, { useState } from 'react';
 import './Auditors.css';
 
 const Auditors = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeSection, setActiveSection] = useState('main-dashboard');
-  const [selectedDocument, setSelectedDocument] = useState(null);
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const [showUserModal, setShowUserModal] = useState(false);
-  const [feedbackResult, setFeedbackResult] = useState('');
-  const [documentNotes, setDocumentNotes] = useState({});
+  // Search and navigation state
+  const [searchQuery, setSearchQuery] = useState(''); // Global search query
+  const [activeSection, setActiveSection] = useState('main-dashboard'); // Current active section
+  
+  // Document management state
+  const [selectedDocument, setSelectedDocument] = useState(null); // Currently selected document
+  const [documentNotes, setDocumentNotes] = useState({}); // Notes for each document
+  
+  // Modal visibility state
+  const [showPreviewModal, setShowPreviewModal] = useState(false); // Document preview modal
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false); // Action feedback modal
+  const [showUserModal, setShowUserModal] = useState(false); // User profile modal
+  const [feedbackResult, setFeedbackResult] = useState(''); // Result of document action
 
+  // Dashboard statistics data - overview of document statuses
   const dashboardStats = [
     { title: 'Total Submitted', value: '124', icon: '📂', type: 'total' },
     { title: 'Pending Review', value: '18', icon: '⏱', type: 'pending' },
@@ -18,6 +25,7 @@ const Auditors = () => {
     { title: 'Rejected', value: '17', icon: '❌', type: 'rejected' }
   ];
 
+  // Sample pending documents awaiting review
   const pendingDocuments = [
     {
       id: 1,
@@ -39,6 +47,7 @@ const Auditors = () => {
     }
   ];
 
+  // Recent activity history - shows latest document actions
   const recentActivities = [
     { action: 'Approved', document: 'Budget Plan 2025', time: '2 hours ago', type: 'approved' },
     { action: 'Rejected', document: 'Event Proposal', time: '5 hours ago', type: 'rejected' },
@@ -47,6 +56,7 @@ const Auditors = () => {
     { action: 'Rejected', document: 'Funding Request', time: '2 days ago', type: 'rejected' }
   ];
 
+  // Review performance statistics - metrics and progress indicators
   const reviewStats = [
     { label: 'Approval Rate', value: '84%', icon: '📈', hasBar: true, percentage: 84, color: 'bg-green-100' },
     { label: 'Documents This Week', value: '23 / 30', icon: '📅', hasBar: true, percentage: 77, color: 'bg-blue-100' },
@@ -55,27 +65,32 @@ const Auditors = () => {
     { label: 'Reviewed Today', value: '7', icon: '✅', hasBar: false }
   ];
 
+  // Document filtering - searches across title, organization, and description
   const filteredDocuments = pendingDocuments.filter(doc =>
     doc.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     doc.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
     doc.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Section navigation handler - switches between dashboard views
   const handleShowSection = (sectionId) => {
     setActiveSection(sectionId);
   };
 
+  // Document preview handler - opens preview modal with selected document
   const handlePreviewDocument = (document) => {
     setSelectedDocument(document);
     setShowPreviewModal(true);
   };
 
+  // Document action handler - processes approve/reject actions
   const handleDocumentAction = (action) => {
     setFeedbackResult(action);
     setShowFeedbackModal(true);
     setShowPreviewModal(false);
   };
 
+  // Modal close handler - manages different modal types and resets state
   const handleCloseModal = (modalType) => {
     switch (modalType) {
       case 'preview':
@@ -94,6 +109,7 @@ const Auditors = () => {
     }
   };
 
+  // Note change handler - updates document-specific notes
   const handleNoteChange = (docId, note) => {
     setDocumentNotes(prev => ({
       ...prev,
@@ -103,10 +119,10 @@ const Auditors = () => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      {/* TOP NAVIGATION */}
+      {/* Top navigation header */}
       <header className="bg-blue-600 text-white">
         <div className="flex items-center justify-between px-10 py-4">
-          {/* Logo and Portal Info */}
+          {/* Brand logo and portal information */}
           <div 
             className="flex items-center gap-3 cursor-pointer"
             onClick={() => handleShowSection('main-dashboard')}
@@ -120,7 +136,7 @@ const Auditors = () => {
             </div>
           </div>
 
-          {/* Search Bar */}
+          {/* Global search input */}
           <div className="flex-1 mx-16">
             <input
               type="text"
@@ -131,7 +147,7 @@ const Auditors = () => {
             />
           </div>
 
-          {/* User Info */}
+          {/* User profile section */}
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 bg-red-500 rounded-full"></div>
             <span className="font-semibold text-base">Auditor</span>
@@ -146,10 +162,10 @@ const Auditors = () => {
         </div>
       </header>
 
-      {/* MAIN DASHBOARD SECTION */}
+      {/* Main dashboard view - overview and document queue */}
       {activeSection === 'main-dashboard' && (
         <section className="section">
-          {/* Dashboard Summary Cards */}
+          {/* Statistics overview cards */}
           <div className="flex justify-center items-center gap-5 w-full my-10 px-10">
             {dashboardStats.map((stat, index) => (
               <div 
@@ -173,9 +189,9 @@ const Auditors = () => {
             ))}
           </div>
 
-          {/* Main Grid */}
+          {/* Main content grid layout */}
           <div className="flex gap-8 px-10 pb-8">
-            {/* Document Queue */}
+            {/* Document review queue - main content area */}
             <div className="flex-[2]">
               <h2 className="text-xl font-bold mb-5">
                 Document Review Queue 
@@ -184,6 +200,7 @@ const Auditors = () => {
                 </span>
               </h2>
 
+              {/* Document cards with review actions */}
               {filteredDocuments.map((doc) => (
                 <div key={doc.id} className="bg-white rounded-2xl mb-5 shadow-lg p-6">
                   <div className="mb-4">
@@ -202,6 +219,7 @@ const Auditors = () => {
                     </div>
                   </div>
                   
+                  {/* Document notes textarea */}
                   <textarea
                     className="w-full p-3 mb-3 rounded-lg border-none bg-slate-100 text-base resize-y block"
                     placeholder="Add notes or feedback about this document..."
@@ -210,6 +228,7 @@ const Auditors = () => {
                     rows={3}
                   />
                   
+                  {/* Document action buttons */}
                   <div className="flex gap-3 mt-3">
                     <button 
                       className="bg-blue-100 text-blue-600 font-semibold px-6 py-2 rounded-lg shadow-sm hover:bg-blue-600 hover:text-white transition-colors"
@@ -234,9 +253,9 @@ const Auditors = () => {
               ))}
             </div>
 
-            {/* Stats Pane */}
+            {/* Right sidebar - statistics and activity */}
             <div className="flex-1 mt-3">
-              {/* Recent Activity */}
+              {/* Recent activity feed */}
               <div className="bg-white rounded-2xl shadow-lg p-5 mb-4">
                 <h3 className="text-lg font-semibold mb-3">Recent Activity</h3>
                 <ul className="space-y-2">
@@ -254,7 +273,7 @@ const Auditors = () => {
                 </ul>
               </div>
 
-              {/* Review Statistics */}
+              {/* Performance metrics and statistics */}
               <div className="bg-white rounded-2xl shadow-lg p-5">
                 <h3 className="text-lg font-semibold mb-4">Review Statistics</h3>
                 <div className="space-y-6">
@@ -284,7 +303,7 @@ const Auditors = () => {
         </section>
       )}
 
-      {/* USER PROFILE SECTION */}
+      {/* User profile display section */}
       {activeSection === 'user-profile-section' && (
         <section className="section">
           <div className="bg-white rounded-3xl shadow-xl mx-auto mt-12 p-10 flex flex-col items-center max-w-md">
@@ -299,7 +318,7 @@ const Auditors = () => {
         </section>
       )}
 
-      {/* PREVIEW MODAL */}
+      {/* Document preview modal */}
       {showPreviewModal && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
           <div className="bg-white rounded-xl p-8 shadow-2xl min-w-[340px] max-w-md relative text-center">
@@ -330,7 +349,7 @@ const Auditors = () => {
         </div>
       )}
 
-      {/* FEEDBACK MODAL */}
+      {/* Action feedback confirmation modal */}
       {showFeedbackModal && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
           <div className="bg-white rounded-xl p-8 shadow-2xl min-w-[340px] max-w-md relative text-center">
@@ -346,7 +365,7 @@ const Auditors = () => {
         </div>
       )}
 
-      {/* USER MODAL */}
+      {/* User information display modal */}
       {showUserModal && (
         <div className="fixed inset-0 bg-black bg-opacity-20 flex justify-center items-center z-50">
           <div className="bg-white rounded-xl p-8 shadow-2xl min-w-[340px] max-w-md relative text-center">

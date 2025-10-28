@@ -12,6 +12,152 @@ const Viewer = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [layoutView, setLayoutView] = useState('list'); // default to 'list' view
+  const [nameSort, setNameSort] = useState('none'); // 'none' | 'asc' | 'desc'
+  const [dateFilterOpen, setDateFilterOpen] = useState(false);
+  const [dateFilterAnchor, setDateFilterAnchor] = useState(null); // 'list' | 'grid' | null
+  // dateFilterRanges: array of { start: Date, end: Date } ranges to match any
+  const [dateFilterRanges, setDateFilterRanges] = useState([]);
+  // date range pickers state
+  const [fromSel, setFromSel] = useState({ year: null, month: null, day: null, level: null });
+  const [toSel, setToSel] = useState({ year: null, month: null, day: null, level: null });
+  const [activePicker, setActivePicker] = useState(null); // 'from'|'to'|null
+  const [pickerView, setPickerView] = useState('year'); // 'year'|'months'|'days'
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+  const [tempYear, setTempYear] = useState(null);
+  const [tempMonth, setTempMonth] = useState(null);
+
+  const openPicker = (which) => {
+    setActivePicker(which);
+    setPickerView('year');
+    const sel = which === 'from' ? fromSel : toSel;
+    const cy = new Date().getFullYear();
+    setTempYear(sel.year || cy);
+    setTempMonth(sel.month != null ? sel.month : 0);
+  };
+
+  const selectYearForPicker = (year) => {
+    if (activePicker === 'from') {
+      // set From year
+      setFromSel({ year, month: null, day: null, level: 'year' });
+      // if To year is not set or is earlier than the new From year, auto-adjust To to match From
+      if (!toSel || !toSel.year || toSel.year < year) {
+        setToSel({ year, month: null, day: null, level: 'year' });
+      }
+      setTempYear(year);
+      // set calendar to start of selected year so months/days reflect the chosen year
+      setCalendarMonth(new Date(year, 0, 1));
+      // after selecting year, show months (and then days) for that year
+      setPickerView('months');
+    } else {
+      // selecting To year: ensure To >= From. If user picks an earlier year, reset To to From year
+      let adjusted = year;
+      if (fromSel && fromSel.year && year < fromSel.year) {
+        adjusted = fromSel.year;
+      }
+      setToSel({ year: adjusted, month: null, day: null, level: 'year' });
+      setTempYear(adjusted);
+      setCalendarMonth(new Date(adjusted, 0, 1));
+      setPickerView('months');
+    }
+  };
+
+  const selectMonthForPicker = (monthIndex) => {
+    if (activePicker === 'from') setFromSel(prev => ({ ...prev, year: tempYear, month: monthIndex, day: null, level: 'month' }));
+    else setToSel(prev => ({ ...prev, year: tempYear, month: monthIndex, day: null, level: 'month' }));
+    setTempMonth(monthIndex);
+    setPickerView('days');
+    setCalendarMonth(new Date(tempYear, monthIndex, 1));
+  };
+
+  const selectDayForPicker = (day) => {
+    if (activePicker === 'from') setFromSel({ year: tempYear, month: tempMonth, day, level: 'day' });
+    else setToSel({ year: tempYear, month: tempMonth, day, level: 'day' });
+    // remain in days view so user can change
+  };
+
+  const closePicker = () => {
+    setActivePicker(null);
+    setPickerView('year');
+  };
+
+  // Helpers for calendar and relative date ranges
+  const startOfDay = (d) => {
+    const r = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    r.setHours(0,0,0,0);
+    return r;
+  };
+
+  const daysInMonth = (year, month) => new Date(year, month + 1, 0).getDate();
+
+  const buildCalendarDays = (monthDate) => {
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
+    const firstWeekday = new Date(year, month, 1).getDay(); // 0-6 Sun-Sat
+    const totalDays = daysInMonth(year, month);
+    const days = [];
+    // push blanks for firstWeekday
+    for (let i = 0; i < firstWeekday; i++) days.push(null);
+    for (let d = 1; d <= totalDays; d++) days.push(new Date(year, month, d));
+    return days;
+  };
+
+  const prevMonth = () => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+  const nextMonth = () => setCalendarMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
+
+  const handleSelectDate = (date) => {
+    const s = startOfDay(date);
+    if (activePicker === 'from') {
+      setFromSel(prev => ({ ...prev, year: s.getFullYear(), month: s.getMonth(), day: s.getDate(), level: 'day' }));
+    } else if (activePicker === 'to') {
+      setToSel(prev => ({ ...prev, year: s.getFullYear(), month: s.getMonth(), day: s.getDate(), level: 'day' }));
+    }
+  };
+
+  const clearDateFilter = () => {
+    setFromSel({ year: null, month: null, day: null, level: null });
+    setToSel({ year: null, month: null, day: null, level: null });
+    setDateFilterRanges([]);
+    setActivePicker(null);
+    setPickerView('year');
+    setDateFilterOpen(false);
+  };
+
+  const setRelativeRange = (option) => {
+    // not used in range-only popup
+    return;
+  };
+
+  const applyDateSelections = () => {
+    // compose ranges from fromSel and toSel
+    const ranges = [];
+    const today = startOfDay(new Date());
+    const makeStart = (sel) => {
+      if (!sel || !sel.year) return null;
+      if (sel.level === 'year') return startOfDay(new Date(sel.year, 0, 1));
+      if (sel.level === 'month') return startOfDay(new Date(sel.year, sel.month, 1));
+      if (sel.level === 'day') return startOfDay(new Date(sel.year, sel.month, sel.day));
+      return null;
+    };
+    const makeEnd = (sel) => {
+      if (!sel || !sel.year) return null;
+      if (sel.level === 'year') return startOfDay(new Date(sel.year, 11, 31));
+      if (sel.level === 'month') return startOfDay(new Date(sel.year, sel.month, daysInMonth(sel.year, sel.month)));
+      if (sel.level === 'day') return startOfDay(new Date(sel.year, sel.month, sel.day));
+      return null;
+    };
+
+    const start = makeStart(fromSel);
+    const end = makeEnd(toSel);
+    if (start || end) {
+      ranges.push({ start, end });
+    }
+    setDateFilterRanges(ranges);
+    setDateFilterOpen(false);
+  };
 
   const documents = [
     {
@@ -52,6 +198,34 @@ const Viewer = () => {
                          doc.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Apply date filter if set (supports multiple ranges)
+  const applyDateFilter = (docs) => {
+    if (!dateFilterRanges || dateFilterRanges.length === 0) return docs;
+    return docs.filter((doc) => {
+      // doc.date format: MM/DD/YYYY
+      const parts = doc.date.split('/');
+      const d = new Date(parts[2], Number(parts[0]) - 1, parts[1]);
+      d.setHours(0,0,0,0);
+      return dateFilterRanges.some(({ start, end }) => {
+        if (start && end) return d >= start && d <= end;
+        if (start && !end) return d >= start;
+        if (!start && end) return d <= end;
+        return false;
+      });
+    });
+  };
+
+  // Apply name sort
+  const applyNameSort = (docs) => {
+    if (nameSort === 'none') return docs;
+    const sorted = [...docs].sort((a,b) => a.title.localeCompare(b.title));
+    if (nameSort === 'asc') return sorted;
+    return sorted.reverse();
+  }
+
+  // Compose final list: base filters -> date filter -> sorting
+  const finalDocuments = applyNameSort(applyDateFilter(filteredDocuments));
 
   // Load pinned state from localStorage on mount
   useEffect(() => {
@@ -368,9 +542,9 @@ const Viewer = () => {
           }}
         >
           {/* Budget Overview */}
-          <div style={{ marginBottom: '32px', marginTop: '20px' }}>
+          <div style={{ marginBottom: '60px', marginTop: '30px' }}>
             <h2 style={{ 
-              fontWeight: 'bold', 
+              fontWeight: 900, 
               fontSize: '1.2em', 
               marginBottom: '20px', 
               color: 'var(--deep)',
@@ -383,35 +557,50 @@ const Viewer = () => {
               justifyContent: 'center',
               alignItems: 'stretch'
             }}>
-              <div className="stat-card" style={{ 
+              <div className="stat-card no-hover" style={{ 
                 padding: '24px 20px', 
                 minHeight: '140px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                textAlign: 'center'
+                textAlign: 'center',
+                background: '#ffffff',
+                boxShadow: '0 2px 8px var(--card-shadow)',
+                transform: 'none',
+                transition: 'none',
+                cursor: 'default'
               }}>
                 <h3 style={{ fontWeight: 'bold', fontSize: '1.1em', marginBottom: '12px' }}>Total Expenses</h3>
                 <p style={{ fontSize: '1.4em', fontWeight: '600' }}>₱565,000</p>
               </div>
-              <div className="stat-card" style={{ 
+              <div className="stat-card no-hover" style={{ 
                 padding: '24px 20px', 
                 minHeight: '140px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                textAlign: 'center'
+                textAlign: 'center',
+                background: '#ffffff',
+                boxShadow: '0 2px 8px var(--card-shadow)',
+                transform: 'none',
+                transition: 'none',
+                cursor: 'default'
               }}>
                 <h3 style={{ fontWeight: 'bold', fontSize: '1.1em', marginBottom: '12px' }}>Total Budget</h3>
                 <p style={{ fontSize: '1.4em', fontWeight: '600' }}>₱800,000</p>
               </div>
-              <div className="stat-card" style={{ 
+              <div className="stat-card no-hover" style={{ 
                 padding: '24px 20px', 
                 minHeight: '140px',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                textAlign: 'center'
+                textAlign: 'center',
+                background: '#ffffff',
+                boxShadow: '0 2px 8px var(--card-shadow)',
+                transform: 'none',
+                transition: 'none',
+                cursor: 'default'
               }}>
                 <h3 style={{ fontWeight: 'bold', fontSize: '1.1em', marginBottom: '12px' }}>Remaining Budget</h3>
                 <p style={{ fontSize: '1.4em', fontWeight: '600' }}>₱235,000</p>
@@ -420,20 +609,21 @@ const Viewer = () => {
           </div>
           <div className="section-header" style={{ 
             display: 'flex', 
-            flexDirection: 'column', 
+            flexDirection: 'row', 
             alignItems: 'center', 
             gap: '20px', 
             marginBottom: '32px',
-            padding: '0 16px'
+            padding: '0 16px',
+            justifyContent: 'center'
           }}>
             <div style={{ 
               display: 'flex', 
-              gap: '20px', 
+              gap: '16px', 
               alignItems: 'center', 
               flexWrap: 'wrap',
-              justifyContent: 'center',
+              justifyContent: 'flex-start',
               width: '100%',
-              maxWidth: '800px'
+              maxWidth: '1100px'
             }}>
               <input 
                 type="text" 
@@ -447,11 +637,36 @@ const Viewer = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+              {/* Layout toggle beside search bar */}
+              <div className="view-toggle" role="toolbar" aria-label="Toggle layout" style={{ marginRight: '12px' }}>
+                <button
+                  type="button"
+                  className={`view-toggle-btn ${layoutView === 'grid' ? 'active' : ''}`}
+                  onClick={() => setLayoutView('grid')}
+                  aria-pressed={layoutView === 'grid'}
+                  title="Grid view"
+                >
+                  <i className="bx bx-grid-alt" aria-hidden="true"></i>
+                  <span className="sr-only">Grid view</span>
+                </button>
+                <button
+                  type="button"
+                  className={`view-toggle-btn ${layoutView === 'list' ? 'active' : ''}`}
+                  onClick={() => setLayoutView('list')}
+                  aria-pressed={layoutView === 'list'}
+                  title="List view"
+                >
+                  <i className="bx bx-list-ul" aria-hidden="true"></i>
+                  <span className="sr-only">List view</span>
+                </button>
+              </div>
               <div className="doc-filters" style={{
                 display: 'flex',
                 gap: '8px',
                 flexWrap: 'wrap',
-                justifyContent: 'center'
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                marginLeft: '12px'
               }}>
                 <button 
                   className={`filter ${activeFilter === 'all' ? 'active' : ''}`}
@@ -481,45 +696,342 @@ const Viewer = () => {
             </div>
           </div>
 
-          <div className="documents-list" style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-            gap: '20px',
-            justifyContent: 'center',
-            alignItems: 'start'
-          }}>
-            {filteredDocuments.map((doc) => (
-              <div key={doc.id} className="doc-card" data-tag={doc.tag}>
-                <i className="bx bxs-file-pdf doc-icon"></i>
-                <div className="doc-content">
-                  <span className="doc-title">{doc.title}</span>
-                  <span className="doc-desc">
-                    <br />
-                    {doc.description}
+          {/* Documents: render grid or list depending on layoutView */}
+          {layoutView === 'grid' ? (
+            <div>
+              {/* Grid header with Name and Date filters to mirror list header */}
+              <div className="grid-header" role="row" style={{ marginTop: 12, marginBottom: 12 }}>
+                <div className="col col-name clickable" role="columnheader" aria-sort={nameSort === 'none' ? 'none' : nameSort} onClick={() => setNameSort(nameSort === 'asc' ? 'desc' : 'asc')} title="Sort by name">
+                  Name
+                  <span style={{ marginLeft: 8 }}>
+                    {nameSort === 'asc' ? (
+                      <i className="bx bx-sort-alphabet-down" style={{ color: '#8f98dc' }}></i>
+                    ) : nameSort === 'desc' ? (
+                      <i className="bx bx-sort-alt-2" style={{ color: '#122090' }}></i>
+                    ) : (
+                      <i className="bx bx-sort-alt-2" style={{ color: 'inherit', opacity: 0.6 }}></i>
+                    )}
                   </span>
-                  <span className="doc-meta">
-                    <br />
-                    {doc.date} · {doc.size} · PDF<br />
-                  </span>
-                  <span className="doc-type">{doc.type}</span>
                 </div>
-                <div className="doc-actions">
-                  <button 
-                    className="view-btn"
-                    onClick={() => handleViewDocument(doc)}
+
+                <div className="col col-date" role="columnheader" style={{ position: 'relative' }}>
+                  <button
+                    className={`date-header-btn`}
+                    onClick={() => {
+                      const open = !(dateFilterOpen && dateFilterAnchor === 'grid');
+                      setDateFilterOpen(open);
+                      setDateFilterAnchor(open ? 'grid' : null);
+                    }}
+                    aria-expanded={dateFilterOpen && dateFilterAnchor === 'grid'}
+                    title="Filter by date"
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
                   >
-                    View
+                    Date
+                    <i className="bx bx-chevron-down" aria-hidden="true" style={{ marginLeft: 6 }}></i>
                   </button>
-                  <button 
-                    className="download-btn" 
-                    onClick={() => handleDownload(doc.file)}
-                  >
-                    Download
-                  </button>
+
+                  {dateFilterOpen && dateFilterAnchor === 'grid' && (
+                    <div className="date-filter-dropdown" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 200 }}>
+                      <button className="close-x" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); }} aria-label="Close">&times;</button>
+                      <div style={{ fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ fontSize: '0.75rem', color: '#333' }}>From</label>
+                            <button className="picker-input" onClick={() => openPicker('from')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{fromSel && fromSel.year ? (fromSel.level === 'day' ? new Date(fromSel.year, fromSel.month, fromSel.day).toLocaleDateString() : (fromSel.level === 'month' ? new Date(fromSel.year, fromSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(fromSel.year))) : 'Select'}</button>
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <label style={{ fontSize: '0.75rem', color: '#333' }}>To</label>
+                            <button className="picker-input" onClick={() => openPicker('to')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{toSel && toSel.year ? (toSel.level === 'day' ? new Date(toSel.year, toSel.month, toSel.day).toLocaleDateString() : (toSel.level === 'month' ? new Date(toSel.year, toSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(toSel.year))) : 'Select'}</button>
+                          </div>
+                        </div>
+
+                        {/* Picker panel (shared) */}
+                        {activePicker && (
+                          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                            <div style={{ minWidth: 200 }}>
+                              {pickerView === 'year' && (
+                                <div className="year-list">
+                                  {(() => {
+                                    const cy = new Date().getFullYear();
+                                    const years = [];
+                                    for (let y = cy; y >= cy - 50; y--) years.push(y);
+                                    return years.map(y => (
+                                      <button key={y} className={`year-btn ${tempYear === y ? 'selected' : ''}`} onClick={() => selectYearForPicker(y)}>{y}</button>
+                                    ));
+                                  })()}
+                                </div>
+                              )}
+
+                              {pickerView === 'months' && (
+                                <div className="months-grid">
+                                  {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => {
+                                    const disableMonthForTo = activePicker === 'to' && fromSel && fromSel.year && tempYear === fromSel.year && (fromSel.month != null) && idx < fromSel.month;
+                                    const cls = `month-btn ${tempMonth === idx ? 'selected' : ''} ${disableMonthForTo ? 'disabled' : ''}`;
+                                    return (
+                                      <button
+                                        key={m}
+                                        className={cls}
+                                        disabled={disableMonthForTo}
+                                        onClick={() => { if (!disableMonthForTo) selectMonthForPicker(idx); }}
+                                      >
+                                        {m}
+                                      </button>
+                                    );
+                                  })}
+
+                                  <div className="months-actions">
+                                    <button className="picker-action-btn" onClick={() => { if (activePicker === 'from') setFromSel({ year: tempYear, month: null, day: null, level: 'year' }); else setToSel({ year: tempYear, month: null, day: null, level: 'year' }); setActivePicker(null); }}>Select Year Only</button>
+                                    <button className="picker-action-btn" onClick={() => setPickerView('year')}>Back</button>
+                                  </div>
+                                </div>
+                              )}
+
+                              {pickerView === 'days' && (
+                                <div>
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6, marginBottom: 6 }}>
+                                    {['S','M','T','W','T','F','S'].map(d => <div key={d} style={{ fontSize: '0.72rem', color:'#444', textAlign:'center' }}>{d}</div>)}
+                                  </div>
+                                  <div className="cal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6 }}>
+                                    {buildCalendarDays(new Date(tempYear, tempMonth, 1)).map((dt, idx) => {
+                                      if (!dt) return <div key={idx}></div>;
+                                      const dayNum = dt.getDate();
+                                      const disableDayForTo = activePicker === 'to' && fromSel && fromSel.year && fromSel.month != null && fromSel.day != null && tempYear === fromSel.year && tempMonth === fromSel.month && dayNum < fromSel.day;
+                                      const sel = (activePicker === 'from' && fromSel.year === tempYear && fromSel.month === tempMonth && fromSel.day === dayNum) || (activePicker === 'to' && toSel.year === tempYear && toSel.month === tempMonth && toSel.day === dayNum);
+                                      const cls = `day ${sel ? 'selected' : ''} ${disableDayForTo ? 'disabled' : ''}`;
+                                      return <div key={idx} onClick={() => { if (!disableDayForTo) selectDayForPicker(dayNum); }} className={cls} style={{ width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:4, background: sel ? '#1A237E' : '#fff', color: sel ? '#FFC107' : '#000', cursor: disableDayForTo ? 'default' : 'pointer' }}>{dayNum}</div>
+                                    })}
+                                  </div>
+                                  <div style={{ marginTop: 8, display:'flex', justifyContent:'space-between', gap: 8 }}>
+                                    <button className="picker-action-btn" onClick={() => setPickerView('months')}>Back</button>
+                                    <button className="picker-action-btn" onClick={() => setActivePicker(null)}>Done</button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                          <button className="date-filter-clear" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); }}>Clear</button>
+                          <button className="date-filter-apply" onClick={() => { applyDateSelections(); setDateFilterAnchor(null); }}>Apply</button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
+
+                <div className="col col-size"></div>
+                <div className="col col-type"></div>
+                <div className="col col-actions"></div>
               </div>
-            ))}
-          </div>
+
+
+              <div className="documents-list">
+                {finalDocuments.map((doc) => (
+                  <div key={doc.id} className="doc-card" data-tag={doc.tag}>
+                    <i className="bx bxs-file-pdf doc-icon"></i>
+                    <div className="doc-content">
+                      <span className="doc-title">{doc.title}</span>
+                      <span className="doc-desc">
+                        <br />
+                        {doc.description}
+                      </span>
+                      <span className="doc-meta">
+                        <br />
+                        {doc.date} · {doc.size} · PDF<br />
+                      </span>
+                      <span className="doc-type">{doc.type}</span>
+                    </div>
+                    <div className="doc-actions">
+                      <button 
+                        className="view-btn"
+                        onClick={() => handleViewDocument(doc)}
+                      >
+                        View
+                      </button>
+                      <button 
+                        className="download-btn" 
+                        onClick={() => handleDownload(doc.file)}
+                      >
+                        Download
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="documents-list list-view">
+              <div className="list-table" role="table" aria-label="Documents list">
+                {/* Header row */}
+                <div className="list-header" role="row">
+                  <div
+                    className="col col-name clickable"
+                    onClick={() => setNameSort(nameSort === 'asc' ? 'desc' : 'asc')}
+                    role="columnheader"
+                    aria-sort={nameSort === 'none' ? 'none' : nameSort}
+                    title="Sort by name"
+                  >
+                    Name
+                    <span style={{ marginLeft: 8 }}>
+                      {nameSort === 'asc' ? (
+                        <i className="bx bx-sort-alphabet-down" style={{ color: '#8f98dc' }}></i>
+                      ) : nameSort === 'desc' ? (
+                        <i className="bx bx-sort-alt-2" style={{ color: '#122090' }}></i>
+                      ) : (
+                        <i className="bx bx-sort-alt-2" style={{ color: 'inherit', opacity: 0.6 }}></i>
+                      )}
+                    </span>
+                  </div>
+                  <div className="col col-date" role="columnheader">
+                    <button
+                      className={`date-header-btn`}
+                      onClick={() => {
+                        const open = !(dateFilterOpen && dateFilterAnchor === 'list');
+                        setDateFilterOpen(open);
+                        setDateFilterAnchor(open ? 'list' : null);
+                      }}
+                      aria-expanded={dateFilterOpen && dateFilterAnchor === 'list'}
+                      title="Filter by date"
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                    >
+                      Date
+                      <i className="bx bx-chevron-down" aria-hidden="true" style={{ marginLeft: 6 }}></i>
+                    </button>
+
+                    {dateFilterOpen && dateFilterAnchor === 'list' && (
+                      <div className="date-filter-dropdown" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 200 }}>
+                        <button className="close-x" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); }} aria-label="Close">&times;</button>
+                        <div style={{ fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <label style={{ fontSize: '0.75rem', color: '#333' }}>From</label>
+                              <button className="picker-input" onClick={() => openPicker('from')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{fromSel && fromSel.year ? (fromSel.level === 'day' ? new Date(fromSel.year, fromSel.month, fromSel.day).toLocaleDateString() : (fromSel.level === 'month' ? new Date(fromSel.year, fromSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(fromSel.year))) : 'Select'}</button>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                              <label style={{ fontSize: '0.75rem', color: '#333' }}>To</label>
+                              <button className="picker-input" onClick={() => openPicker('to')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{toSel && toSel.year ? (toSel.level === 'day' ? new Date(toSel.year, toSel.month, toSel.day).toLocaleDateString() : (toSel.level === 'month' ? new Date(toSel.year, toSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(toSel.year))) : 'Select'}</button>
+                            </div>
+                          </div>
+
+                          {/* Picker panel */}
+                          {activePicker && (
+                            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                              <div style={{ minWidth: 200 }}>
+                                {pickerView === 'year' && (
+                                  <div className="year-list">
+                                    {(() => {
+                                      const cy = new Date().getFullYear();
+                                      const years = [];
+                                      // generate descending list from current year backward
+                                      for (let y = cy; y >= cy - 50; y--) years.push(y);
+                                      return years.map(y => (
+                                        <button key={y} className={`year-btn ${tempYear === y ? 'selected' : ''}`} onClick={() => selectYearForPicker(y)}>{y}</button>
+                                      ));
+                                    })()}
+                                  </div>
+                                )}
+
+                                {pickerView === 'months' && (
+                                  <div className="months-grid">
+                                    {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => {
+                                      // disable months for To picker if they would be before the From selection in the same year
+                                      const disableMonthForTo = activePicker === 'to' && fromSel && fromSel.year && tempYear === fromSel.year && (fromSel.month != null) && idx < fromSel.month;
+                                      const cls = `month-btn ${tempMonth === idx ? 'selected' : ''} ${disableMonthForTo ? 'disabled' : ''}`;
+                                      return (
+                                        <button
+                                          key={m}
+                                          className={cls}
+                                          disabled={disableMonthForTo}
+                                          onClick={() => { if (!disableMonthForTo) selectMonthForPicker(idx); }}
+                                        >
+                                          {m}
+                                        </button>
+                                      );
+                                    })}
+
+                                    <div className="months-actions">
+                                      <button className="picker-action-btn" onClick={() => { if (activePicker === 'from') setFromSel({ year: tempYear, month: null, day: null, level: 'year' }); else setToSel({ year: tempYear, month: null, day: null, level: 'year' }); setActivePicker(null); }}>Select Year Only</button>
+                                      <button className="picker-action-btn" onClick={() => setPickerView('year')}>Back</button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {pickerView === 'days' && (
+                                  <div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6, marginBottom: 6 }}>
+                                      {['S','M','T','W','T','F','S'].map(d => <div key={d} style={{ fontSize: '0.72rem', color:'#444', textAlign:'center' }}>{d}</div>)}
+                                    </div>
+                                    <div className="cal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6 }}>
+                                      {buildCalendarDays(new Date(tempYear, tempMonth, 1)).map((dt, idx) => {
+                                        if (!dt) return <div key={idx}></div>;
+                                        const dayNum = dt.getDate();
+                                        // determine if this day should be disabled for To picker (earlier than From selection)
+                                        const disableDayForTo = activePicker === 'to' && fromSel && fromSel.year && fromSel.month != null && fromSel.day != null && tempYear === fromSel.year && tempMonth === fromSel.month && dayNum < fromSel.day;
+                                        const sel = (activePicker === 'from' && fromSel.year === tempYear && fromSel.month === tempMonth && fromSel.day === dayNum) || (activePicker === 'to' && toSel.year === tempYear && toSel.month === tempMonth && toSel.day === dayNum);
+                                        const cls = `day ${sel ? 'selected' : ''} ${disableDayForTo ? 'disabled' : ''}`;
+                                        return <div key={idx} onClick={() => { if (!disableDayForTo) selectDayForPicker(dayNum); }} className={cls} style={{ width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:4, background: sel ? '#1A237E' : '#fff', color: sel ? '#FFC107' : '#000', cursor: disableDayForTo ? 'default' : 'pointer' }}>{dayNum}</div>
+                                      })}
+                                    </div>
+                                    <div style={{ marginTop: 8, display:'flex', justifyContent:'space-between', gap: 8 }}>
+                                      <button className="picker-action-btn" onClick={() => setPickerView('months')}>Back</button>
+                                      <button className="picker-action-btn" onClick={() => setActivePicker(null)}>Done</button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                            <button className="date-filter-clear" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); }}>Clear</button>
+                            <button className="date-filter-apply" onClick={() => { applyDateSelections(); setDateFilterAnchor(null); }}>Apply</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="col col-size">File Size</div>
+                  <div className="col col-type">File Type</div>
+                  <div className="col col-actions" aria-hidden="true"></div>
+                </div>
+
+                {/* Data rows */}
+                {finalDocuments.map((doc) => (
+                  <div key={doc.id} className="doc-row" role="row" data-tag={doc.tag}>
+                    <div className="col col-name" role="cell">
+                      <div className="doc-left">
+                        <i className="bx bxs-file-pdf doc-icon" aria-hidden="true"></i>
+                        <div className="doc-info">
+                          <span className="doc-title">{doc.title}</span>
+                          <span className="doc-desc small-desc">{doc.description}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col col-date" role="cell">{doc.date}</div>
+                    <div className="col col-size" role="cell">{doc.size}</div>
+                    <div className="col col-type" role="cell">{doc.type}</div>
+                    <div className="col col-actions" role="cell">
+                      <div className="doc-actions">
+                        <button 
+                          className="view-btn"
+                          onClick={() => handleViewDocument(doc)}
+                        >
+                          View
+                        </button>
+                        <button 
+                          className="download-btn" 
+                          onClick={() => handleDownload(doc.file)}
+                        >
+                          Download
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* About Member Access Information Card */}
           <div className="w-full max-w-full mx-auto mt-8 mb-12 bg-white border-l-4 border-l-[#122090] rounded-lg shadow-sm border border-gray-200 p-6" style={{ margin: '2rem 0 3rem 0' }}>

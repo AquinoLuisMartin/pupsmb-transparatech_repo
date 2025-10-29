@@ -17,7 +17,7 @@
     box-shadow: 0 6px 18px rgba(2,6,23,0.08);
     padding: 12px;
     z-index: 120;
-    width: 360px;
+    width: 520px;
     max-height: 360px;
     overflow-y: auto; /* popup has vertical scrollbar if content exceeds height */
   }
@@ -646,9 +646,119 @@ body {
   box-shadow: 0 6px 18px rgba(2,6,23,0.08);
   padding: 12px;
   z-index: 120;
-  width: 360px;
+  width: 520px;
   max-height: 360px;
   overflow-y: auto; /* popup has vertical scrollbar if content exceeds height */
+}
+
+/* Preset option rows inside date dropdown */
+.date-option {
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--deep);
+}
+.date-option:hover {
+  background: #f1f5ff; /* highlight on hover per design (updated) */
+}
+
+/* Two-column layout inside the date dropdown: options on the left, custom pickers on the right */
+.date-dropdown-inner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.date-options-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+.custom-range-panel {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 6px;
+}
+.custom-range-row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.picker-input {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: #fff;
+  cursor: pointer;
+}
+
+/* Google-Drive-like two-column date filter panel */
+.date-filter-panel {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 420px;
+}
+.preset-list {
+  width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* separators between options provide spacing */
+  padding: 4px;
+}
+.preset-option {
+  background: transparent;
+  border: 0;
+  text-align: left;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  color: var(--deep);
+  border-bottom: 1px solid rgba(17,24,39,0.04); /* subtle horizontal divider */
+}
+.preset-option:hover { background: #f1f5ff; }
+.presets-footer { margin-top: 8px; padding: 8px 4px; }
+
+.vertical-divider {
+  width: 1px;
+  background: rgba(17,24,39,0.06);
+  border-radius: 1px;
+  align-self: stretch;
+}
+
+.custom-panel {
+  width: 360px;
+  min-height: 84px;
+  transform: translateX(8px);
+  opacity: 0;
+  transition: transform 220ms cubic-bezier(.16,.84,.44,1), opacity 180ms ease;
+  pointer-events: none;
+}
+.custom-panel.open { transform: translateX(0); opacity: 1; pointer-events: auto; }
+.custom-panel-inner {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.04);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive: stack panels on small screens */
+@media (max-width: 720px) {
+  .date-filter-panel { flex-direction: column; min-width: 260px; max-width: 95vw; }
+  .preset-list { width: 100%; }
+  .vertical-divider { display: none; }
+  .custom-panel { width: 100%; transform: translateY(10px); }
+  .custom-panel.open { transform: translateY(0); }
 }
 .date-header-btn {
   background: transparent;

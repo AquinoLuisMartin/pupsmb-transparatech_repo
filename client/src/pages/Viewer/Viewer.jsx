@@ -29,6 +29,8 @@ const Viewer = () => {
   });
   const [tempYear, setTempYear] = useState(null);
   const [tempMonth, setTempMonth] = useState(null);
+  const [showCustomRange, setShowCustomRange] = useState(false);
+  const [selectedPreset, setSelectedPreset] = useState(null); // display name of the selected preset (e.g. "Custom date range")
 
   const openPicker = (which) => {
     setActivePicker(which);
@@ -124,6 +126,45 @@ const Viewer = () => {
     setActivePicker(null);
     setPickerView('year');
     setDateFilterOpen(false);
+    setShowCustomRange(false);
+    setSelectedPreset(null);
+  };
+
+  const applyPreset = (preset) => {
+    const today = startOfDay(new Date());
+    let start = null;
+    let end = null;
+    if (preset === 'today') {
+      start = today; end = today;
+    } else if (preset === 'last7') {
+      end = today;
+      start = startOfDay(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6));
+    } else if (preset === 'last30') {
+      end = today;
+      start = startOfDay(new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29));
+    } else if (preset === 'thisYear') {
+      const y = today.getFullYear();
+      start = startOfDay(new Date(y, 0, 1));
+      end = startOfDay(new Date(y, 11, 31));
+    } else if (preset === 'lastYear') {
+      const y = today.getFullYear() - 1;
+      start = startOfDay(new Date(y, 0, 1));
+      end = startOfDay(new Date(y, 11, 31));
+    } else if (preset === 'custom') {
+      // show custom range UI but do not apply yet
+      setShowCustomRange(true);
+      setActivePicker('from');
+      setPickerView('year');
+      return;
+    }
+
+    // Apply computed preset range
+    const ranges = [];
+    if (start || end) ranges.push({ start, end });
+    setDateFilterRanges(ranges);
+    setDateFilterOpen(false);
+    setDateFilterAnchor(null);
+    setShowCustomRange(false);
   };
 
   const setRelativeRange = (option) => {
@@ -158,6 +199,8 @@ const Viewer = () => {
     setDateFilterRanges(ranges);
     setDateFilterOpen(false);
   };
+
+  // Note: dropdown will be absolutely positioned inside the header's relative container
 
   const documents = [
     {
@@ -721,6 +764,8 @@ const Viewer = () => {
                       const open = !(dateFilterOpen && dateFilterAnchor === 'grid');
                       setDateFilterOpen(open);
                       setDateFilterAnchor(open ? 'grid' : null);
+                      setShowCustomRange(false);
+                      setSelectedPreset(null);
                     }}
                     aria-expanded={dateFilterOpen && dateFilterAnchor === 'grid'}
                     title="Filter by date"
@@ -731,89 +776,141 @@ const Viewer = () => {
                   </button>
 
                   {dateFilterOpen && dateFilterAnchor === 'grid' && (
-                    <div className="date-filter-dropdown" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 200 }}>
-                      <button className="close-x" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); }} aria-label="Close">&times;</button>
-                      <div style={{ fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <label style={{ fontSize: '0.75rem', color: '#333' }}>From</label>
-                            <button className="picker-input" onClick={() => openPicker('from')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{fromSel && fromSel.year ? (fromSel.level === 'day' ? new Date(fromSel.year, fromSel.month, fromSel.day).toLocaleDateString() : (fromSel.level === 'month' ? new Date(fromSel.year, fromSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(fromSel.year))) : 'Select'}</button>
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            <label style={{ fontSize: '0.75rem', color: '#333' }}>To</label>
-                            <button className="picker-input" onClick={() => openPicker('to')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{toSel && toSel.year ? (toSel.level === 'day' ? new Date(toSel.year, toSel.month, toSel.day).toLocaleDateString() : (toSel.level === 'month' ? new Date(toSel.year, toSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(toSel.year))) : 'Select'}</button>
-                          </div>
-                        </div>
+                    <div className="date-filter-dropdown" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 9999, maxHeight: '60vh', overflow: 'auto' }}>
+                      <button className="close-x" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); setShowCustomRange(false); setSelectedPreset(null); }} aria-label="Close">&times;</button>
+                      <div style={{ fontSize: '0.95rem', padding: 8 }}>
+                        {/* small local style for keyframes/animation (Tailwind utility used for layout) */}
+                        <style>{`
+                          @keyframes slide-in { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                          .animate-slide-in { animation: slide-in 300ms ease forwards; }
+                        `}</style>
 
-                        {/* Picker panel (shared) */}
-                        {activePicker && (
-                          <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                            <div style={{ minWidth: 200 }}>
-                              {pickerView === 'year' && (
-                                <div className="year-list">
-                                  {(() => {
-                                    const cy = new Date().getFullYear();
-                                    const years = [];
-                                    for (let y = cy; y >= cy - 50; y--) years.push(y);
-                                    return years.map(y => (
-                                      <button key={y} className={`year-btn ${tempYear === y ? 'selected' : ''}`} onClick={() => selectYearForPicker(y)}>{y}</button>
-                                    ));
-                                  })()}
-                                </div>
-                              )}
+                        <div className="bg-white rounded-md shadow-sm p-3 w-80 md:w-96">
+                          <div className="flex flex-col md:flex-row gap-3">
+                            {/* Left: presets */}
+                            <div className="flex-1">
+                              <div className="flex flex-col divide-y divide-gray-100 rounded-md overflow-hidden">
+                                <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Today'); applyPreset('today'); }}>Today</button>
+                                <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Last 7 days'); applyPreset('last7'); }}>Last 7 days</button>
+                                <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Last 30 days'); applyPreset('last30'); }}>Last 30 days</button>
+                                <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('This year'); applyPreset('thisYear'); }}>This year</button>
+                                <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Last year'); applyPreset('lastYear'); }}>Last year</button>
+                                <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Custom date range'); applyPreset('custom'); }}>{'Custom date range'}</button>
+                              </div>
 
-                              {pickerView === 'months' && (
-                                <div className="months-grid">
-                                  {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => {
-                                    const disableMonthForTo = activePicker === 'to' && fromSel && fromSel.year && tempYear === fromSel.year && (fromSel.month != null) && idx < fromSel.month;
-                                    const cls = `month-btn ${tempMonth === idx ? 'selected' : ''} ${disableMonthForTo ? 'disabled' : ''}`;
-                                    return (
-                                      <button
-                                        key={m}
-                                        className={cls}
-                                        disabled={disableMonthForTo}
-                                        onClick={() => { if (!disableMonthForTo) selectMonthForPicker(idx); }}
-                                      >
-                                        {m}
-                                      </button>
-                                    );
-                                  })}
-
-                                  <div className="months-actions">
-                                    <button className="picker-action-btn" onClick={() => { if (activePicker === 'from') setFromSel({ year: tempYear, month: null, day: null, level: 'year' }); else setToSel({ year: tempYear, month: null, day: null, level: 'year' }); setActivePicker(null); }}>Select Year Only</button>
-                                    <button className="picker-action-btn" onClick={() => setPickerView('year')}>Back</button>
+                              {/* Footer under presets: show 3 buttons unless custom is active */}
+                              <div className="mt-3">
+                                {selectedPreset === 'Custom date range' ? (
+                                  <div className="">
+                                    <button className="text-sm text-left text-gray-600" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); setSelectedPreset(null); }}>Clear all</button>
                                   </div>
-                                </div>
-                              )}
-
-                              {pickerView === 'days' && (
-                                <div>
-                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6, marginBottom: 6 }}>
-                                    {['S','M','T','W','T','F','S'].map(d => <div key={d} style={{ fontSize: '0.72rem', color:'#444', textAlign:'center' }}>{d}</div>)}
+                                ) : (
+                                  <div className="grid grid-cols-3 items-center gap-2">
+                                    <div className="justify-self-start">
+                                      <button className="text-sm text-gray-600" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); setSelectedPreset(null); }}>Clear all</button>
+                                    </div>
+                                    <div className="justify-self-center">
+                                      <button className="text-sm text-gray-600" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); setSelectedPreset(null); }}>Cancel</button>
+                                    </div>
+                                    <div className="justify-self-end">
+                                      <button className="text-sm font-semibold text-white bg-[#122090] px-3 py-1 rounded" onClick={() => { applyDateSelections(); setDateFilterOpen(false); setDateFilterAnchor(null); setSelectedPreset(null); }}>Apply</button>
+                                    </div>
                                   </div>
-                                  <div className="cal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6 }}>
-                                    {buildCalendarDays(new Date(tempYear, tempMonth, 1)).map((dt, idx) => {
-                                      if (!dt) return <div key={idx}></div>;
-                                      const dayNum = dt.getDate();
-                                      const disableDayForTo = activePicker === 'to' && fromSel && fromSel.year && fromSel.month != null && fromSel.day != null && tempYear === fromSel.year && tempMonth === fromSel.month && dayNum < fromSel.day;
-                                      const sel = (activePicker === 'from' && fromSel.year === tempYear && fromSel.month === tempMonth && fromSel.day === dayNum) || (activePicker === 'to' && toSel.year === tempYear && toSel.month === tempMonth && toSel.day === dayNum);
-                                      const cls = `day ${sel ? 'selected' : ''} ${disableDayForTo ? 'disabled' : ''}`;
-                                      return <div key={idx} onClick={() => { if (!disableDayForTo) selectDayForPicker(dayNum); }} className={cls} style={{ width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:4, background: sel ? '#1A237E' : '#fff', color: sel ? '#FFC107' : '#000', cursor: disableDayForTo ? 'default' : 'pointer' }}>{dayNum}</div>
-                                    })}
-                                  </div>
-                                  <div style={{ marginTop: 8, display:'flex', justifyContent:'space-between', gap: 8 }}>
-                                    <button className="picker-action-btn" onClick={() => setPickerView('months')}>Back</button>
-                                    <button className="picker-action-btn" onClick={() => setActivePicker(null)}>Done</button>
-                                  </div>
-                                </div>
-                              )}
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        )}
 
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                          <button className="date-filter-clear" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); }}>Clear</button>
-                          <button className="date-filter-apply" onClick={() => { applyDateSelections(); setDateFilterAnchor(null); }}>Apply</button>
+                            {/* Vertical divider (desktop) */}
+                            <div className="hidden md:block w-px bg-gray-200"></div>
+
+                            {/* Right: custom panel - only render when selectedPreset === "Custom date range" */}
+                            {selectedPreset === 'Custom date range' && (
+                              <div className={`w-full md:w-80 bg-white rounded-md p-3 shadow-sm animate-slide-in transition-all duration-300`}>
+                                <div className="flex flex-col gap-3">
+                                  <div className="flex gap-3">
+                                    <div className="flex flex-col gap-1">
+                                      <label className="text-xs text-gray-700">From</label>
+                                      <button className="picker-input border px-2 py-1 rounded" onClick={() => openPicker('from')}>{fromSel && fromSel.year ? (fromSel.level === 'day' ? new Date(fromSel.year, fromSel.month, fromSel.day).toLocaleDateString() : (fromSel.level === 'month' ? new Date(fromSel.year, fromSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(fromSel.year))) : 'Select'}</button>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                      <label className="text-xs text-gray-700">To</label>
+                                      <button className="picker-input border px-2 py-1 rounded" onClick={() => openPicker('to')}>{toSel && toSel.year ? (toSel.level === 'day' ? new Date(toSel.year, toSel.month, toSel.day).toLocaleDateString() : (toSel.level === 'month' ? new Date(toSel.year, toSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(toSel.year))) : 'Select'}</button>
+                                    </div>
+                                  </div>
+
+                                  {/* Picker rendering re-used as-is */}
+                                  {activePicker && (
+                                    <div className="mt-2">
+                                      {pickerView === 'year' && (
+                                        <div className="year-list">
+                                          {(() => {
+                                            const cy = new Date().getFullYear();
+                                            const years = [];
+                                            for (let y = cy; y >= cy - 50; y--) years.push(y);
+                                            return years.map(y => (
+                                              <button key={y} className={`year-btn ${tempYear === y ? 'selected' : ''}`} onClick={() => selectYearForPicker(y)}>{y}</button>
+                                            ));
+                                          })()}
+                                        </div>
+                                      )}
+
+                                      {pickerView === 'months' && (
+                                        <div className="months-grid">
+                                          {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => {
+                                            const disableMonthForTo = activePicker === 'to' && fromSel && fromSel.year && tempYear === fromSel.year && (fromSel.month != null) && idx < fromSel.month;
+                                            const cls = `month-btn ${tempMonth === idx ? 'selected' : ''} ${disableMonthForTo ? 'disabled' : ''}`;
+                                            return (
+                                              <button
+                                                key={m}
+                                                className={cls}
+                                                disabled={disableMonthForTo}
+                                                onClick={() => { if (!disableMonthForTo) selectMonthForPicker(idx); }}
+                                              >
+                                                {m}
+                                              </button>
+                                            );
+                                          })}
+
+                                          <div className="months-actions">
+                                            <button className="picker-action-btn" onClick={() => { if (activePicker === 'from') setFromSel({ year: tempYear, month: null, day: null, level: 'year' }); else setToSel({ year: tempYear, month: null, day: null, level: 'year' }); setActivePicker(null); }}>Select Year Only</button>
+                                            <button className="picker-action-btn" onClick={() => setPickerView('year')}>Back</button>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {pickerView === 'days' && (
+                                        <div>
+                                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6, marginBottom: 6 }}>
+                                            {['S','M','T','W','T','F','S'].map(d => <div key={d} style={{ fontSize: '0.72rem', color:'#444', textAlign:'center' }}>{d}</div>)}
+                                          </div>
+                                          <div className="cal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6 }}>
+                                            {buildCalendarDays(new Date(tempYear, tempMonth, 1)).map((dt, idx) => {
+                                              if (!dt) return <div key={idx}></div>;
+                                              const dayNum = dt.getDate();
+                                              const disableDayForTo = activePicker === 'to' && fromSel && fromSel.year && fromSel.month != null && fromSel.day != null && tempYear === fromSel.year && tempMonth === fromSel.month && dayNum < fromSel.day;
+                                              const sel = (activePicker === 'from' && fromSel.year === tempYear && fromSel.month === tempMonth && fromSel.day === dayNum) || (activePicker === 'to' && toSel.year === tempYear && toSel.month === tempMonth && toSel.day === dayNum);
+                                              const cls = `day ${sel ? 'selected' : ''} ${disableDayForTo ? 'disabled' : ''}`;
+                                              return <div key={idx} onClick={() => { if (!disableDayForTo) selectDayForPicker(dayNum); }} className={cls} style={{ width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:4, background: sel ? '#1A237E' : '#fff', color: sel ? '#FFC107' : '#000', cursor: disableDayForTo ? 'default' : 'pointer' }}>{dayNum}</div>
+                                            })}
+                                          </div>
+                                          <div style={{ marginTop: 8, display:'flex', justifyContent:'space-between', gap: 8 }}>
+                                            <button className="picker-action-btn" onClick={() => setPickerView('months')}>Back</button>
+                                            <button className="picker-action-btn" onClick={() => setActivePicker(null)}>Done</button>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {/* Apply/Cancel moved here when custom is active */}
+                                  <div className="flex justify-end gap-2 mt-2">
+                                    <button className="text-sm text-gray-600" onClick={() => { setShowCustomRange(false); setSelectedPreset(null); }}>Cancel</button>
+                                    <button className="text-sm font-semibold text-white bg-[#122090] px-3 py-1 rounded" onClick={() => { applyDateSelections(); setDateFilterOpen(false); setDateFilterAnchor(null); setShowCustomRange(false); setSelectedPreset(null); }}>Apply</button>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -883,13 +980,15 @@ const Viewer = () => {
                       )}
                     </span>
                   </div>
-                  <div className="col col-date" role="columnheader">
+                  <div className="col col-date" role="columnheader" style={{ position: 'relative' }}>
                     <button
                       className={`date-header-btn`}
                       onClick={() => {
-                        const open = !(dateFilterOpen && dateFilterAnchor === 'list');
-                        setDateFilterOpen(open);
-                        setDateFilterAnchor(open ? 'list' : null);
+                          const open = !(dateFilterOpen && dateFilterAnchor === 'list');
+                          setDateFilterOpen(open);
+                          setDateFilterAnchor(open ? 'list' : null);
+                          setShowCustomRange(false);
+                          setSelectedPreset(null);
                       }}
                       aria-expanded={dateFilterOpen && dateFilterAnchor === 'list'}
                       title="Filter by date"
@@ -900,92 +999,134 @@ const Viewer = () => {
                     </button>
 
                     {dateFilterOpen && dateFilterAnchor === 'list' && (
-                      <div className="date-filter-dropdown" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 200 }}>
-                        <button className="close-x" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); }} aria-label="Close">&times;</button>
-                        <div style={{ fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                              <label style={{ fontSize: '0.75rem', color: '#333' }}>From</label>
-                              <button className="picker-input" onClick={() => openPicker('from')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{fromSel && fromSel.year ? (fromSel.level === 'day' ? new Date(fromSel.year, fromSel.month, fromSel.day).toLocaleDateString() : (fromSel.level === 'month' ? new Date(fromSel.year, fromSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(fromSel.year))) : 'Select'}</button>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                              <label style={{ fontSize: '0.75rem', color: '#333' }}>To</label>
-                              <button className="picker-input" onClick={() => openPicker('to')} style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid rgba(0,0,0,0.08)', background: '#fff' }}>{toSel && toSel.year ? (toSel.level === 'day' ? new Date(toSel.year, toSel.month, toSel.day).toLocaleDateString() : (toSel.level === 'month' ? new Date(toSel.year, toSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(toSel.year))) : 'Select'}</button>
-                            </div>
-                          </div>
+                      <div className="date-filter-dropdown" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 9999, maxHeight: '60vh', overflow: 'auto' }}>
+                        <button className="close-x" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); setShowCustomRange(false); setSelectedPreset(null); }} aria-label="Close">&times;</button>
+                        <div style={{ fontSize: '0.95rem', padding: 8 }}>
+                          <style>{`
+                            @keyframes slide-in { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                            .animate-slide-in { animation: slide-in 300ms ease forwards; }
+                          `}</style>
 
-                          {/* Picker panel */}
-                          {activePicker && (
-                            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                              <div style={{ minWidth: 200 }}>
-                                {pickerView === 'year' && (
-                                  <div className="year-list">
-                                    {(() => {
-                                      const cy = new Date().getFullYear();
-                                      const years = [];
-                                      // generate descending list from current year backward
-                                      for (let y = cy; y >= cy - 50; y--) years.push(y);
-                                      return years.map(y => (
-                                        <button key={y} className={`year-btn ${tempYear === y ? 'selected' : ''}`} onClick={() => selectYearForPicker(y)}>{y}</button>
-                                      ));
-                                    })()}
-                                  </div>
-                                )}
+                          <div className="bg-white rounded-md shadow-sm p-3 w-80 md:w-96">
+                            <div className="flex flex-col md:flex-row gap-3">
+                              <div className="flex-1">
+                                <div className="flex flex-col divide-y divide-gray-100 rounded-md overflow-hidden">
+                                  <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Today'); applyPreset('today'); }}>Today</button>
+                                  <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Last 7 days'); applyPreset('last7'); }}>Last 7 days</button>
+                                  <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Last 30 days'); applyPreset('last30'); }}>Last 30 days</button>
+                                  <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('This year'); applyPreset('thisYear'); }}>This year</button>
+                                  <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Last year'); applyPreset('lastYear'); }}>Last year</button>
+                                  <button className="text-left px-3 py-2 hover:bg-[#f1f5ff] focus:outline-none" onClick={() => { setSelectedPreset('Custom date range'); applyPreset('custom'); }}>{'Custom date range'}</button>
+                                </div>
 
-                                {pickerView === 'months' && (
-                                  <div className="months-grid">
-                                    {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => {
-                                      // disable months for To picker if they would be before the From selection in the same year
-                                      const disableMonthForTo = activePicker === 'to' && fromSel && fromSel.year && tempYear === fromSel.year && (fromSel.month != null) && idx < fromSel.month;
-                                      const cls = `month-btn ${tempMonth === idx ? 'selected' : ''} ${disableMonthForTo ? 'disabled' : ''}`;
-                                      return (
-                                        <button
-                                          key={m}
-                                          className={cls}
-                                          disabled={disableMonthForTo}
-                                          onClick={() => { if (!disableMonthForTo) selectMonthForPicker(idx); }}
-                                        >
-                                          {m}
-                                        </button>
-                                      );
-                                    })}
-
-                                    <div className="months-actions">
-                                      <button className="picker-action-btn" onClick={() => { if (activePicker === 'from') setFromSel({ year: tempYear, month: null, day: null, level: 'year' }); else setToSel({ year: tempYear, month: null, day: null, level: 'year' }); setActivePicker(null); }}>Select Year Only</button>
-                                      <button className="picker-action-btn" onClick={() => setPickerView('year')}>Back</button>
+                                <div className="mt-3">
+                                  {selectedPreset === 'Custom date range' ? (
+                                    <div>
+                                      <button className="text-sm text-left text-gray-600" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); setSelectedPreset(null); }}>Clear all</button>
                                     </div>
-                                  </div>
-                                )}
-
-                                {pickerView === 'days' && (
-                                  <div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6, marginBottom: 6 }}>
-                                      {['S','M','T','W','T','F','S'].map(d => <div key={d} style={{ fontSize: '0.72rem', color:'#444', textAlign:'center' }}>{d}</div>)}
+                                  ) : (
+                                    <div className="grid grid-cols-3 items-center gap-2">
+                                      <div className="justify-self-start">
+                                        <button className="text-sm text-gray-600" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); setSelectedPreset(null); }}>Clear all</button>
+                                      </div>
+                                      <div className="justify-self-center">
+                                        <button className="text-sm text-gray-600" onClick={() => { setDateFilterOpen(false); setDateFilterAnchor(null); setSelectedPreset(null); }}>Cancel</button>
+                                      </div>
+                                      <div className="justify-self-end">
+                                        <button className="text-sm font-semibold text-white bg-[#122090] px-3 py-1 rounded" onClick={() => { applyDateSelections(); setDateFilterOpen(false); setDateFilterAnchor(null); setSelectedPreset(null); }}>Apply</button>
+                                      </div>
                                     </div>
-                                    <div className="cal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6 }}>
-                                      {buildCalendarDays(new Date(tempYear, tempMonth, 1)).map((dt, idx) => {
-                                        if (!dt) return <div key={idx}></div>;
-                                        const dayNum = dt.getDate();
-                                        // determine if this day should be disabled for To picker (earlier than From selection)
-                                        const disableDayForTo = activePicker === 'to' && fromSel && fromSel.year && fromSel.month != null && fromSel.day != null && tempYear === fromSel.year && tempMonth === fromSel.month && dayNum < fromSel.day;
-                                        const sel = (activePicker === 'from' && fromSel.year === tempYear && fromSel.month === tempMonth && fromSel.day === dayNum) || (activePicker === 'to' && toSel.year === tempYear && toSel.month === tempMonth && toSel.day === dayNum);
-                                        const cls = `day ${sel ? 'selected' : ''} ${disableDayForTo ? 'disabled' : ''}`;
-                                        return <div key={idx} onClick={() => { if (!disableDayForTo) selectDayForPicker(dayNum); }} className={cls} style={{ width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:4, background: sel ? '#1A237E' : '#fff', color: sel ? '#FFC107' : '#000', cursor: disableDayForTo ? 'default' : 'pointer' }}>{dayNum}</div>
-                                      })}
-                                    </div>
-                                    <div style={{ marginTop: 8, display:'flex', justifyContent:'space-between', gap: 8 }}>
-                                      <button className="picker-action-btn" onClick={() => setPickerView('months')}>Back</button>
-                                      <button className="picker-action-btn" onClick={() => setActivePicker(null)}>Done</button>
-                                    </div>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
 
-                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
-                            <button className="date-filter-clear" onClick={() => { clearDateFilter(); setDateFilterAnchor(null); }}>Clear</button>
-                            <button className="date-filter-apply" onClick={() => { applyDateSelections(); setDateFilterAnchor(null); }}>Apply</button>
+                              <div className="hidden md:block w-px bg-gray-200"></div>
+
+                              {selectedPreset === 'Custom date range' && (
+                                <div className={`w-full md:w-80 bg-white rounded-md p-3 shadow-sm animate-slide-in transition-all duration-300`}>
+                                  <div className="flex flex-col gap-3">
+                                    <div className="flex gap-3">
+                                      <div className="flex flex-col gap-1">
+                                        <label className="text-xs text-gray-700">From</label>
+                                        <button className="picker-input border px-2 py-1 rounded" onClick={() => openPicker('from')}>{fromSel && fromSel.year ? (fromSel.level === 'day' ? new Date(fromSel.year, fromSel.month, fromSel.day).toLocaleDateString() : (fromSel.level === 'month' ? new Date(fromSel.year, fromSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(fromSel.year))) : 'Select'}</button>
+                                      </div>
+                                      <div className="flex flex-col gap-1">
+                                        <label className="text-xs text-gray-700">To</label>
+                                        <button className="picker-input border px-2 py-1 rounded" onClick={() => openPicker('to')}>{toSel && toSel.year ? (toSel.level === 'day' ? new Date(toSel.year, toSel.month, toSel.day).toLocaleDateString() : (toSel.level === 'month' ? new Date(toSel.year, toSel.month, 1).toLocaleString(undefined, { month: 'short', year: 'numeric' }) : String(toSel.year))) : 'Select'}</button>
+                                      </div>
+                                    </div>
+
+                                    {activePicker && (
+                                      <div className="mt-2">
+                                        {pickerView === 'year' && (
+                                          <div className="year-list">
+                                            {(() => {
+                                              const cy = new Date().getFullYear();
+                                              const years = [];
+                                              for (let y = cy; y >= cy - 50; y--) years.push(y);
+                                              return years.map(y => (
+                                                <button key={y} className={`year-btn ${tempYear === y ? 'selected' : ''}`} onClick={() => selectYearForPicker(y)}>{y}</button>
+                                              ));
+                                            })()}
+                                          </div>
+                                        )}
+
+                                        {pickerView === 'months' && (
+                                          <div className="months-grid">
+                                            {['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((m, idx) => {
+                                              const disableMonthForTo = activePicker === 'to' && fromSel && fromSel.year && tempYear === fromSel.year && (fromSel.month != null) && idx < fromSel.month;
+                                              const cls = `month-btn ${tempMonth === idx ? 'selected' : ''} ${disableMonthForTo ? 'disabled' : ''}`;
+                                              return (
+                                                <button
+                                                  key={m}
+                                                  className={cls}
+                                                  disabled={disableMonthForTo}
+                                                  onClick={() => { if (!disableMonthForTo) selectMonthForPicker(idx); }}
+                                                >
+                                                  {m}
+                                                </button>
+                                              );
+                                            })}
+
+                                            <div className="months-actions">
+                                              <button className="picker-action-btn" onClick={() => { if (activePicker === 'from') setFromSel({ year: tempYear, month: null, day: null, level: 'year' }); else setToSel({ year: tempYear, month: null, day: null, level: 'year' }); setActivePicker(null); }}>Select Year Only</button>
+                                              <button className="picker-action-btn" onClick={() => setPickerView('year')}>Back</button>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {pickerView === 'days' && (
+                                          <div>
+                                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6, marginBottom: 6 }}>
+                                              {['S','M','T','W','T','F','S'].map(d => <div key={d} style={{ fontSize: '0.72rem', color:'#444', textAlign:'center' }}>{d}</div>)}
+                                            </div>
+                                            <div className="cal-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 24px)', gap: 6 }}>
+                                              {buildCalendarDays(new Date(tempYear, tempMonth, 1)).map((dt, idx) => {
+                                                if (!dt) return <div key={idx}></div>;
+                                                const dayNum = dt.getDate();
+                                                const disableDayForTo = activePicker === 'to' && fromSel && fromSel.year && fromSel.month != null && fromSel.day != null && tempYear === fromSel.year && tempMonth === fromSel.month && dayNum < fromSel.day;
+                                                const sel = (activePicker === 'from' && fromSel.year === tempYear && fromSel.month === tempMonth && fromSel.day === dayNum) || (activePicker === 'to' && toSel.year === tempYear && toSel.month === tempMonth && toSel.day === dayNum);
+                                                const cls = `day ${sel ? 'selected' : ''} ${disableDayForTo ? 'disabled' : ''}`;
+                                                return <div key={idx} onClick={() => { if (!disableDayForTo) selectDayForPicker(dayNum); }} className={cls} style={{ width:24, height:24, display:'flex', alignItems:'center', justifyContent:'center', borderRadius:4, background: sel ? '#1A237E' : '#fff', color: sel ? '#FFC107' : '#000', cursor: disableDayForTo ? 'default' : 'pointer' }}>{dayNum}</div>
+                                              })}
+                                            </div>
+                                            <div style={{ marginTop: 8, display:'flex', justifyContent:'space-between', gap: 8 }}>
+                                              <button className="picker-action-btn" onClick={() => setPickerView('months')}>Back</button>
+                                              <button className="picker-action-btn" onClick={() => setActivePicker(null)}>Done</button>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    <div className="flex justify-end gap-2 mt-2">
+                                      <button className="text-sm text-gray-600" onClick={() => { setShowCustomRange(false); setSelectedPreset(null); }}>Cancel</button>
+                                      <button className="text-sm font-semibold text-white bg-[#122090] px-3 py-1 rounded" onClick={() => { applyDateSelections(); setDateFilterOpen(false); setDateFilterAnchor(null); setShowCustomRange(false); setSelectedPreset(null); }}>Apply</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>

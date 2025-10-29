@@ -12,6 +12,7 @@ const Login = () => {
   });
   
   const [showPassword, setShowPassword] = useState(false);
+  const [closeHover, setCloseHover] = useState(false);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -136,7 +137,45 @@ const Login = () => {
   return (
     <div className="login">
       <div className="login__container">
-        <form className="login__form" onSubmit={handleSubmit}>
+        <form className="login__form" onSubmit={handleSubmit} style={{ position: 'relative' }}>
+          {/* Close (X) button - absolute positioned in the top-right of the login card */}
+          <button
+            type="button"
+            aria-label="Close login"
+            onClick={() => navigate('/')}
+            onMouseEnter={() => setCloseHover(true)}
+            onMouseLeave={() => setCloseHover(false)}
+            className="login__close-btn"
+            style={{
+              position: 'absolute',
+              top: 12,
+              right: 12,
+              background: 'transparent',
+              border: 'none',
+              padding: 6,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M6 6L18 18M6 18L18 6"
+                stroke={closeHover ? '#d1d5db' : '#6b7280'}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
           <header className="login__header">
             <h2 className="login__title">{getRoleTitle()}</h2>
           </header>

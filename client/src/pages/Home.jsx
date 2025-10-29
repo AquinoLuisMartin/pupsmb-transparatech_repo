@@ -142,15 +142,15 @@ const Home = () => {
             </div>
             <div>
               <h1 className="text-xl font-bold text-white">PUPSMB TransparaTech</h1>
-              <p className="text-blue-200 text-sm">Official Management System of PUPSMB</p>
+              <p className="text-white text-sm">Official Management System of PUPSMB</p>
             </div>
           </div>
           
           <nav className="nav-menu">
-            <button onClick={() => scrollToSection('home')} className="nav-link">Home</button>
-            <button onClick={() => scrollToSection('about')} className="nav-link">About</button>
-            <button onClick={() => scrollToSection('features')} className="nav-link">Features</button>
-            <Link to="/signup" className="nav-link">Get Started</Link>
+            <button onClick={() => scrollToSection('home')} className="nav-link !text-white">Home</button>
+            <button onClick={() => scrollToSection('about')} className="nav-link !text-white">About</button>
+            <button onClick={() => scrollToSection('features')} className="nav-link !text-white">Features</button>
+            <Link to="/signup" className="nav-link !text-white">Get Started</Link>
           </nav>
         </div>
       </div>
@@ -194,7 +194,7 @@ const Home = () => {
           </p>
           
           <div className="hero-buttons">
-            <Link to="/login" className="hero-button-primary">
+            <Link to="/login" className="hero-button-primary !text-[#365487]">
               Log In
             </Link>
             <Link to="/signup" className="hero-button-secondary">
@@ -219,7 +219,7 @@ const Home = () => {
 
   // Component for organization logo
   const OrganizationLogo = ({ logo }) => (
-    <div className="w-16 h-16 rounded-full overflow-hidden shadow-md">
+    <div className="w-20 h-20 rounded-full overflow-hidden shadow-md">
       <img src={logo.src} alt={logo.alt} className="w-full h-full object-cover" title={logo.name} />
     </div>
   );
@@ -257,17 +257,17 @@ const Home = () => {
       >
         <div className="section-content">
           <div className="section-header">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">About Transparatech</h2>
-            <p className="text-gray-600 text-lg text-justify indent-8">
+            <h2 className="text-5xl font-bold text-gray-900 mb-6">About Transparatech</h2>
+            <p className="text-gray-600 text-xl text-centered indent-6">
               The PUP Sta. Maria Campus Transparency Portal is a digital platform dedicated to{' '}
               <strong>promoting openness, accountability, and responsible governance</strong>{' '}
               within the university community. It serves as a central hub for managing, submitting, 
-              and reviewing organizational and financial reports with clarity and integrity.
+              and reviewing organizational and financial reports with clarity and integrity. 
               Our mission is to <em>strengthen trust between students, organizations, and administrators</em>{' '}
-              by ensuring that all processes are transparent, ethical, and efficiently documented. 
+              by ensuring that all processes are transparent, ethical, and efficiently documented. <br /><br />
               Through this initiative, we aim to foster a culture of{' '}
               <strong>honesty, collaboration, and good governance</strong>{' '}
-              that reflects the true spirit of the Polytechnic University of the Philippines.
+              that reflects the true spirit of the Polytechnic University of the Philippines. 
               More than a system for compliance, the PUPSMB Transparency Portal is a commitment —{' '}
               <em>a step toward building a transparent, accountable, and progressive student community.</em>
             </p>
@@ -284,8 +284,8 @@ const Home = () => {
       >
         <div className="section-content">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Student Organizations</h2>
-            <p className="text-gray-600">Supporting campus community through various student organizations</p>
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">Student Organizations</h2>
+            <p className="text-gray-600 text-xl">Supporting campus community through various student organizations</p>
           </div>
           <div className="flex flex-wrap justify-center items-center gap-8 max-w-4xl mx-auto">
             {ORGANIZATION_LOGOS.map((logo, index) => (
@@ -313,8 +313,8 @@ const Home = () => {
       >
         <div className="section-content">
           <div className="section-header">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Key Features</h2>
-            <p className="text-gray-600 text-lg">Experience Transparency and Efficiency with Transparatech</p>
+            <h2 className="text-5xl font-bold text-gray-900 mb-4">Our Key Features</h2>
+            <p className="text-gray-600 text-xl">Experience Transparency and Efficiency with Transparatech</p>
           </div>
           <div className="features-grid">
             {FEATURES_DATA.map((feature, index) => (

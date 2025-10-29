@@ -8,9 +8,10 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    middleInitial: '',
     email: '',
     studentNumber: '',
-    accountType: '',
+    accountType: 'member',
     organization: '',
     password: '',
     confirmPassword: ''
@@ -21,24 +22,25 @@ const Signup = () => {
 
   // Organization options based on account type
   const getOrganizationOptions = () => {
-    if (formData.accountType === 'administrator') {
-      return [
-        { value: 'coa', label: 'Commission on Audit (COA)' },
-        { value: 'oss', label: 'Office of Student Services (OSS)' },
-        { value: 'cosoa', label: 'Commission on Student Organizations and Accreditation (COSOA)' }
-      ];
-    } else {
-      return [
-        { value: 'aces', label: 'Alliance of Computer Engineering Students (ACES)' },
-        { value: 'isite', label: 'Integrated Students in Information Technology Education (iSITE)' },
-        { value: 'aft', label: 'Association of Future Teachers (AFT)' },
-        { value: 'hmsoc', label: 'Hospitality Management Society (HMSOC)' },
-        { value: 'cem', label: 'Chamber of Entrepreneurs and Managers (CEM)' },
-        { value: 'jpia', label: 'Junior Philippine Institute of Accountancy - Sta Maria (JPIA)' },
-        { value: 'domt', label: 'Diploma in Office Management SY-Quest (DOMT)' }
-      ];
-    }
+    // We'll not use this helper for rendering; keep for compatibility if needed
+    return [];
   };
+
+  const studentOrgs = [
+    { value: 'isite', label: 'ISITE' },
+    { value: 'aces', label: 'ACES' },
+    { value: 'jpia', label: 'JPIA' },
+    { value: 'aft', label: 'AFT' },
+    { value: 'hmsoc', label: 'HMSOC' },
+    { value: 'cem', label: 'CEM' },
+    { value: 'domt', label: 'DOMT' }
+  ];
+
+  const adminTypes = [
+    { value: 'coa', label: 'Commission on Audit (COA)' },
+    { value: 'oss', label: 'Office of Student Services (OSS)' },
+    { value: 'cosoa', label: 'Commission on Student Organizations and Accreditation (COSOA)' }
+  ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -94,20 +96,9 @@ const Signup = () => {
     
     // Get organization name for display
     const getOrgName = (orgValue) => {
-      const allOrgs = [
-        { value: 'aces', label: 'Alliance of Computer Engineering Students (ACES)' },
-        { value: 'isite', label: 'Integrated Students in Information Technology Education (iSITE)' },
-        { value: 'aft', label: 'Association of Future Teachers (AFT)' },
-        { value: 'hmsoc', label: 'Hospitality Management Society (HMSOC)' },
-        { value: 'cem', label: 'Chamber of Entrepreneurs and Managers (CEM)' },
-        { value: 'jpia', label: 'Junior Philippine Institute of Accountancy - Sta Maria (JPIA)' },
-        { value: 'domt', label: 'Diploma in Office Management SY-Quest (DOMT)' },
-        { value: 'coa', label: 'Commission on Audit (COA)' },
-        { value: 'oss', label: 'Office of Student Services (OSS)' },
-        { value: 'cosoa', label: 'Commission on Student Organizations and Accreditation (COSOA)' }
-      ];
-      const org = allOrgs.find(o => o.value === orgValue);
-      return org ? org.label : orgValue;
+      const combined = [...studentOrgs, ...adminTypes];
+      const found = combined.find(o => o.value === orgValue);
+      return found ? found.label : orgValue;
     };
     
     // For demo purposes, automatically create account and redirect to appropriate dashboard
@@ -157,13 +148,48 @@ const Signup = () => {
             <div className="signup__logo">
               <div className="logo-circle">PUP</div>
             </div>
-            <h2 className="signup__title">{getRoleTitle()}</h2>
+            <h2 className="signup__title" style={{ color: '#1565c0' }}>{getRoleTitle()}</h2>
             <p className="signup__subtitle">Join the TransparaTech community</p>
           </header>
+          {/* Account Type first */}
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="accountType" className="form-field__label" style={{ color: '#1565c0' }}>
+              Account Type<span style={{ color: '#FF0000' }}> *</span>
+            </label>
+            <select
+              id="accountType"
+              name="accountType"
+              value={formData.accountType}
+              onChange={handleInputChange}
+              required
+              className="form-field__select"
+            >
+              <option value="member">Organization Member (Viewer)</option>
+              <option value="officer">Officer</option>
+              <option value="administrator">Administrator</option>
+            </select>
+          </div>
 
-          <div className="form-field">
-            <label htmlFor="firstName" className="form-field__label">
-              Full Name
+          {/* Common fields for all account types (order required by spec) */}
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="lastName" className="form-field__label" style={{ color: '#1565c0' }}>
+              Last Name<span style={{ color: '#FF0000' }}> *</span>
+            </label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleInputChange}
+              required
+              placeholder="Dela Cruz"
+              className="form-field__input"
+            />
+          </div>
+
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="firstName" className="form-field__label" style={{ color: '#1565c0' }}>
+              First Name<span style={{ color: '#FF0000' }}> *</span>
             </label>
             <input
               type="text"
@@ -172,30 +198,30 @@ const Signup = () => {
               value={formData.firstName}
               onChange={handleInputChange}
               required
-              placeholder="Juan Dela Cruz"
+              placeholder="Juan"
               className="form-field__input"
             />
           </div>
 
-          <div className="form-field">
-            <label htmlFor="email" className="form-field__label">
-              Email
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="middleInitial" className="form-field__label" style={{ color: '#1565c0' }}>
+              Middle Initial
             </label>
             <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
+              type="text"
+              id="middleInitial"
+              name="middleInitial"
+              value={formData.middleInitial}
               onChange={handleInputChange}
-              required
-              placeholder="your.email@pupsmb.edu.ph"
+              placeholder="M"
+              maxLength={1}
               className="form-field__input"
             />
           </div>
 
-          <div className="form-field">
-            <label htmlFor="studentNumber" className="form-field__label">
-              Student Number
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="studentNumber" className="form-field__label" style={{ color: '#1565c0' }}>
+              Student Number<span style={{ color: '#FF0000' }}> *</span>
             </label>
             <input
               type="text"
@@ -209,9 +235,67 @@ const Signup = () => {
             />
           </div>
 
-          <div className="form-field">
-            <label htmlFor="password" className="form-field__label">
-              Password
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="email" className="form-field__label" style={{ color: '#1565c0' }}>
+              Email<span style={{ color: '#FF0000' }}> *</span>
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              placeholder="your.email@pupsmb.edu.ph"
+              className="form-field__input"
+            />
+          </div>
+
+          {/* Organization / Administration Type */}
+          {formData.accountType === 'administrator' ? (
+            <div className="form-field" style={{ marginBottom: 12 }}>
+              <label htmlFor="organization" className="form-field__label" style={{ color: '#1565c0' }}>
+                Administration Type<span style={{ color: '#FF0000' }}> *</span>
+              </label>
+              <select
+                id="organization"
+                name="organization"
+                value={formData.organization}
+                onChange={handleInputChange}
+                required
+                className="form-field__select"
+              >
+                <option value="">Select One</option>
+                {adminTypes.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="form-field" style={{ marginBottom: 12 }}>
+              <label htmlFor="organization" className="form-field__label" style={{ color: '#1565c0' }}>
+                Organization<span style={{ color: '#FF0000' }}> *</span>
+              </label>
+              <select
+                id="organization"
+                name="organization"
+                value={formData.organization}
+                onChange={handleInputChange}
+                required
+                className="form-field__select"
+                disabled={!formData.accountType}
+              >
+                <option value="">Select your organization</option>
+                {studentOrgs.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="password" className="form-field__label" style={{ color: '#1565c0' }}>
+              Password<span style={{ color: '#FF0000' }}> *</span>
             </label>
             <div className="password-input-wrapper">
               <input
@@ -256,9 +340,9 @@ const Signup = () => {
             </div>
           </div>
 
-          <div className="form-field">
-            <label htmlFor="confirmPassword" className="form-field__label">
-              Confirm Password
+          <div className="form-field" style={{ marginBottom: 12 }}>
+            <label htmlFor="confirmPassword" className="form-field__label" style={{ color: '#1565c0' }}>
+              Confirm Password<span style={{ color: '#FF0000' }}> *</span>
             </label>
             <div className="password-input-wrapper">
               <input
@@ -303,71 +387,7 @@ const Signup = () => {
             </div>
           </div>
 
-          <div className="form-field">
-            <label htmlFor="accountType" className="form-field__label">
-              Account Type
-            </label>
-            <select
-              id="accountType"
-              name="accountType"
-              value={formData.accountType}
-              onChange={handleInputChange}
-              required
-              className="form-field__select"
-            >
-              
-              <option value="member">Organization Member (Viewer)</option>
-              <option value="officer">Officer</option>
-              <option value="administrator">Administrator</option>
-            </select>
-          </div>
-
-          {formData.accountType === 'administrator' ? (
-            <div className="form-field">
-              <label htmlFor="organization" className="form-field__label">
-                Administration Type
-              </label>
-              <select
-                id="organization"
-                name="organization"
-                value={formData.organization}
-                onChange={handleInputChange}
-                required
-                className="form-field__select"
-              >
-                <option value="">Select One</option>
-                {getOrganizationOptions().map((org) => (
-                  <option key={org.value} value={org.value}>
-                    {org.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ) : (
-            <div className="form-field">
-              <label htmlFor="organization" className="form-field__label">
-                Organization
-              </label>
-              <select
-                id="organization"
-                name="organization"
-                value={formData.organization}
-                onChange={handleInputChange}
-                required
-                className="form-field__select"
-                disabled={!formData.accountType || formData.accountType === ''}
-              >
-                <option value="">Select your organization</option>
-                {getOrganizationOptions().map((org) => (
-                  <option key={org.value} value={org.value}>
-                    {org.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          <button type="submit" className="signup__submit-btn">
+          <button type="submit" className="signup__submit-btn" style={{ background: '#1565c0', color: '#fff', padding: '10px 16px', borderRadius: 6, border: 'none' }}>
             Create Account
           </button>
 
@@ -378,6 +398,7 @@ const Signup = () => {
                 type="button"
                 onClick={() => navigate(getLoginLink())}
                 className="signup__link-btn"
+                style={{ color: '#1565c0', background: 'transparent', border: 'none', padding: 0 }}
               >
                 Log in
               </button>

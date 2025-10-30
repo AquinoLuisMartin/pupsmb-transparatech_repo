@@ -38,6 +38,33 @@
   margin: 0;
 }
 
+/* Smaller subtitle used on the Forgot Password card */
+.login__subtitle {
+  color: #6c757d;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 400; 
+}
+
+/* Forgot password submit button matches signup/login styles */
+.forgot__submit-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  color: white;
+  border: none;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+
+.forgot__submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Form Fields */
 .form-field {
   margin-bottom: 1.5rem;

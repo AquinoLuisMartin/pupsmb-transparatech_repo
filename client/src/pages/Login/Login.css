@@ -13,19 +13,77 @@
 
 .login__container {
   width: 100%;
-  max-width: 400px;
+  max-width: 520px;
 }
 
 /* Login Form */
+.login__card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgba(16,24,40,0.08);
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative; /* allow absolutely positioned controls inside the card */
+}
+
+.login__close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: #9ca3af; /* default gray */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.12s ease, transform 0.08s ease;
+}
+
+.login__close-btn:hover {
+  color: #6b7280; /* slightly darker on hover */
+  transform: translateY(-1px);
+}
+
 .login__form {
-  background: white;
-  border-radius: 16px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 40px rgba(33, 150, 243, 0.15);
-  border: 1px solid #e3f2fd;
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
+  border: none;
 }
 
 /* Header */
+
+/* Close button positioned inside the card (top-right) */
+.login__close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  color: #9ca3af; /* gray */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login__close-btn:hover {
+  color: #6b7280; /* darker on hover */
+}
+
+/* Login top image (matches forgot top image spacing) */
+.login__top-image {
+  width: 64px;
+  height: auto;
+  display: block;
+  margin: 0 auto 20px auto; /* increased bottom spacing for consistency */
+}
 .login__header {
   text-align: center;
   margin-bottom: 2rem;
@@ -36,20 +94,20 @@
   font-size: 1.8rem;
   font-weight: 600;
   margin: 0;
+  letter-spacing: 0.2px;
 }
 
 /* Smaller subtitle used on the Forgot Password card */
 .login__subtitle {
-  color: #6c757d;
+  color: #6b7280;
   margin-top: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 400; 
+  font-size: 0.88rem;
+  font-weight: 400;
 }
 
-/* Forgot password submit button matches signup/login styles */
-.forgot__submit-btn {
+.login__submit-btn {
   width: 100%;
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+  background: #2196f3; /* primary blue */
   color: white;
   border: none;
   padding: 0.875rem 1rem;
@@ -58,11 +116,67 @@
   font-weight: 600;
   cursor: pointer;
   margin-bottom: 1.5rem;
+  transition: background-color 160ms ease;
+}
+
+.login__submit-btn:hover {
+  background: #1976d2; /* hover blue */
+}
+
+.login__submit-btn:active {
+  transform: translateY(0);
+}
+
+.login__security-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+.login__security-icon {
+  flex: 0 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1565c0;
+}
+
+.login__security-text {
+  color: #6b7280;
+  font-size: 0.82rem;
+}
+
+/* Forgot password submit button matches signup/login styles */
+.forgot__submit-btn {
+  width: 100%;
+  background: #2196f3;
+  color: white;
+  border: none;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+  transition: background-color 160ms ease;
+}
+
+.forgot__submit-btn:hover {
+  background: #1976d2;
 }
 
 .forgot__submit-btn:disabled {
-  opacity: 0.6;
+  /* keep the same appearance even when disabled per design request */
+  opacity: 1;
   cursor: not-allowed;
+  background: #2196f3; /* ensure color remains Accent Blue */
 }
 
 /* Form Fields */
@@ -139,29 +253,39 @@
 }
 
 /* Submit Button */
-.login__submit-btn {
-  width: 100%;
-  background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
-  color: white;
-  border: none;
-  padding: 0.875rem 1rem;
+
+/* Inline error notification shown when login fails */
+.login__error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fdecea; /* requested background */
+  color: #d32f2f; /* requested text color */
+  border: 1px solid #f5c2c7; /* requested border */
+  padding: 0.5rem 0.75rem;
   border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.875rem; /* small */
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
 
-
-
-.login__submit-btn:active {
+.login__error.show {
+  opacity: 1;
   transform: translateY(0);
+}
+
+.login__error-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
 }
 
 /* Footer */
 .login__footer {
   text-align: center;
-  border-top: 1px solid #e3f2fd;
+  border-top: 1px solid #e9f4ff;
   padding-top: 1.5rem;
 }
 
@@ -178,12 +302,17 @@
 .login__link-btn {
   background: none;
   border: none;
-  color: #2196f3;
+  color: #1565c0;
   cursor: pointer;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   padding: 0;
+}
+
+.login__link-btn:hover {
+  text-decoration: underline;
+  text-decoration-color: #1976d2;
 }
 
 
@@ -211,4 +340,124 @@
   .login__title {
     font-size: 1.3rem;
   }
+}
+
+/* Forgot password confirmation card */
+.forgot__confirm-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.forgot__confirm-card {
+  background: transparent; /* outer .login__card provides the white background */
+  border-radius: 0;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-shadow: none;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.forgot__confirm-image {
+  width: 96px;
+  max-width: 100px;
+  height: auto;
+  display: block;
+  margin: 0 auto 12px auto;
+}
+
+.forgot__title {
+  color: #1565c0;
+  font-size: 1.8rem; /* text-lg / text-xl feel */
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.2px;
+}
+
+.forgot__subtitle {
+  color: #6b7280;
+  margin: 0 0 16px 0;
+  font-size: 0.9rem;
+  max-width: 80%;
+  text-align: center;
+}
+
+.forgot__info {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 0; /* padding handled by modifiers */
+  width: 100%;
+}
+
+.forgot__info--blue {
+  background: #e3f2fd;
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.forgot__info--yellow {
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.forgot__info-icon {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.forgot__info-title {
+  color: #1565c0;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.forgot__info-title--yellow {
+  color: #b36b00;
+}
+
+.forgot__info-desc {
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.forgot__btn {
+  background: #2196f3;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.12s ease;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.forgot__btn:hover {
+  background: #1976d2;
+}
+
+/* fade-in for the confirmation card */
+.fade-in {
+  animation: fadeIn 320ms ease both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
